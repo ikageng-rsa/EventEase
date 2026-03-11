@@ -14,6 +14,7 @@ namespace EventEase.Data
         }
 
         public DbSet<Customer> Customers{ get; set; }
+        public DbSet<Venue> Venues{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
