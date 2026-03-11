@@ -25,7 +25,7 @@ namespace EventEase.Controllers
         {
 
             if (_signInManager.IsSignedIn(User))
-                return RedirectToAction("Index", "Customer");
+                return RedirectToAction("Index", "Dashboard");
 
             return View();
         }
@@ -33,7 +33,7 @@ namespace EventEase.Controllers
         public IActionResult Privacy()
         {
             if (_signInManager.IsSignedIn(User))
-                return RedirectToAction("Index", "Customer");
+                return RedirectToAction("Index", "Dashboard");
 
             return View();
         }

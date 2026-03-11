@@ -20,7 +20,7 @@ namespace EventEase.Controllers
         {
             // Redirect already-authenticated users straight to dashboard
             if (_signInManager.IsSignedIn(User))
-                return RedirectToAction("Index", "Customer");
+                return RedirectToAction("Index", "Dashboard");
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -49,7 +49,7 @@ namespace EventEase.Controllers
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Dashboard");
             }
 
             if (result.IsLockedOut)
