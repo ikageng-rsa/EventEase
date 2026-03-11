@@ -1,0 +1,181 @@
+﻿@model EventEase.Models.Event
+
+@{
+    ViewData["Title"] = "Add Event";
+    Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle text-azure">
+                        EventEase &rsaquo;
+                        <a asp-controller="Event" asp-action="Index" class="text-azure text-decoration-none">Events</a>
+                        &rsaquo; Add New
+                    </div>
+                    <h2 class="page-title fw-bold">Add New Event</h2>
+                </div>
+                <div class="col-auto ms-auto">
+                    <a asp-controller="Event" asp-action="Index" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back to Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row justify-content-center">
+                <div class="col-lg-7 col-xl-6">
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                </span>
+                                <h3 class="card-title mb-0 fw-semibold">Event Details</h3>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <form asp-controller="Event" asp-action="Create" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 py-2" role="alert"></div>
+
+                                <div class="mb-3">
+                                    <label asp-for="EventName" class="form-label fw-medium">
+                                        Event Name <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                                <line x1="16" y1="2" x2="16" y2="6" />
+                                                <line x1="8" y1="2" x2="8" y2="6" />
+                                                <line x1="3" y1="10" x2="21" y2="10" />
+                                            </svg>
+                                        </span>
+                                        <input asp-for="EventName" class="form-control border-start-0"
+                                               placeholder="e.g. Annual Tech Conference" />
+                                    </div>
+                                    <span asp-validation-for="EventName" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="EventDate" class="form-label fw-medium">
+                                        Event Date <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                                <line x1="16" y1="2" x2="16" y2="6" />
+                                                <line x1="8" y1="2" x2="8" y2="6" />
+                                                <line x1="3" y1="10" x2="21" y2="10" />
+                                            </svg>
+                                        </span>
+                                        <input asp-for="EventDate" class="form-control border-start-0" type="date" />
+                                    </div>
+                                    <span asp-validation-for="EventDate" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="VenueId" class="form-label fw-medium">
+                                        Venue <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                                <polyline points="9 22 9 12 15 12 15 22" />
+                                            </svg>
+                                        </span>
+                                        <select asp-for="VenueId" asp-items="ViewBag.VenueId"
+                                                class="form-select border-start-0">
+                                            <option value="">— Select a venue —</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="VenueId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Description" class="form-label fw-medium">
+                                        Description <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea asp-for="Description" class="form-control" rows="4"
+                                              placeholder="Provide a brief description of the event..."></textarea>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <span asp-validation-for="Description" class="text-danger small"></span>
+                                        <span id="charCount" class="text-muted small ms-auto"></span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 pt-2 border-top">
+                                    <a asp-controller="Event" asp-action="Index" class="btn btn-outline-secondary flex-fill">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-azure flex-fill d-flex align-items-center justify-content-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                            <polyline points="17 21 17 13 7 13 7 21" />
+                                            <polyline points="7 3 7 8 15 8" />
+                                        </svg>
+                                        Save Event
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Character counter for description
+        const textarea = document.getElementById('Description');
+        const charCount = document.getElementById('charCount');
+
+        function updateCount() {
+            const remaining = 1000 - textarea.value.length;
+            charCount.textContent = `${textarea.value.length} / 1000`;
+            charCount.className = remaining < 100 ? 'text-danger small ms-auto' : 'text-muted small ms-auto';
+        }
+
+        textarea.addEventListener('input', updateCount);
+        updateCount();
+    </script>
+}
