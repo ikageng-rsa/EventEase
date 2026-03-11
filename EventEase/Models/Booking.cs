@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EventEase.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EventEase.Models
@@ -21,6 +22,7 @@ namespace EventEase.Models
 
         [Required(ErrorMessage = "Booking date is required.")]
         [DataType(DataType.Date)]
+        [FutureDate(ErrorMessage = "Booking date must be in the future.")]
         [Display(Name = "Booking Date")]
         public DateTime BookingDate { get; set; } = DateTime.Today;
 

@@ -10,7 +10,7 @@ namespace EventEase.Validation
     {
         public FutureDateAttribute()
         {
-            ErrorMessage = "Event date must be today or in the future.";
+            ErrorMessage = "Date must be in the future.";
         }
 
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)

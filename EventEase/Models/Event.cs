@@ -15,7 +15,7 @@ namespace EventEase.Models
 
         [Required(ErrorMessage = "Event date is required.")]
         [DataType(DataType.Date)]
-        [FutureDate]
+        [FutureDate(ErrorMessage = "Event date must be in the future.")]
         [Display(Name = "Event Date")]
         public DateTime EventDate { get; set; }
 
