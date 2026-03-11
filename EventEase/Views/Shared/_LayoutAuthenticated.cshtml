@@ -360,7 +360,7 @@
                 <div class="nav-section-label">Management</div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a href="@Url.Action("Index", "Customer")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")">
+                        <a href="@Url.Action("Index", "Customer")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -373,7 +373,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/Venues" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Venues" ? "active" : "")">
+                        <a href="@Url.Action("Index", "Venue")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Venue" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -384,7 +384,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/Events" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+                        <a href="/Events" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Event" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -397,7 +397,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/Bookings" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bookings" ? "active" : "")">
+                        <a href="/Bookings" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Booking" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
