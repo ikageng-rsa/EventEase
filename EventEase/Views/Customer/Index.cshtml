@@ -1,0 +1,246 @@
+﻿@model IEnumerable<EventEase.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle text-azure">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="me-1">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        EventEase &rsaquo; Management
+                    </div>
+                    <h2 class="page-title fw-bold">
+                        Customers
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <a href="@Url.Action("Create", "Customer")" class="btn btn-azure d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="me-2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        @TempData["SuccessMessage"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="me-2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        @TempData["ErrorMessage"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </span>
+                        <h3 class="card-title mb-0 fw-semibold">All Customers</h3>
+                        <span class="badge bg-azure-lt text-azure ms-1">@Model.Count()</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-vcenter table-hover card-table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-muted fw-semibold" style="width: 60px;">#</th>
+                                <th class="text-muted fw-semibold">Full Name</th>
+                                <th class="text-muted fw-semibold">Email Address</th>
+                                <th class="text-muted fw-semibold">Phone Number</th>
+                                <th class="text-muted fw-semibold text-end" style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="empty">
+                                            <div class="empty-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                                     class="text-muted">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                    <circle cx="9" cy="7" r="4" />
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                                </svg>
+                                            </div>
+                                            <p class="empty-title">No customers found</p>
+                                            <p class="empty-subtitle text-muted">
+                                                Get started by adding your first customer.
+                                            </p>
+                                            <div class="empty-action">
+                                                <a href="@Url.Action("Create", "Customers")" class="btn btn-azure">
+                                                    Add Customer
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int index = 1;
+                                foreach (var customer in Model)
+                                {
+                                    <tr>
+                                        <td class="text-muted">@index</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="avatar avatar-sm rounded-circle bg-azure-lt text-azure fw-bold"
+                                                      style="font-size: 0.75rem;">
+                                                    @(customer.FullName?.Length > 0 ? customer.FullName[0].ToString().ToUpper() : "?")
+                                                </span>
+                                                <span class="fw-medium">@customer.FullName</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted">@customer.Email</td>
+                                        <td class="text-muted">@customer.Phone</td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                <a href="@Url.Action("Edit", "Customers", new { id = customer.Id })"
+                                                   class="btn btn-sm btn-outline-azure d-flex align-items-center gap-1"
+                                                   title="Edit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                    </svg>
+                                                    Edit
+                                                </a>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+                                                        title="Delete"
+                                                        onclick="confirmDelete('@customer.Id', '@Html.Raw(Html.Encode(customer.FullName))')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6" />
+                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                                        <path d="M10 11v6" />
+                                                        <path d="M14 11v6" />
+                                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal modal-blur fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body">
+                <div class="modal-title text-center mb-2">
+                    <div class="d-flex justify-content-center mb-3">
+                        <span class="avatar avatar-lg bg-danger-lt text-danger rounded-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </svg>
+                        </span>
+                    </div>
+                    <h3 class="fw-bold mb-1">Delete Customer?</h3>
+                </div>
+                <div class="text-muted text-center mb-0">
+                    Are you sure you want to delete <strong id="deleteCustomerName"></strong>? This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <div class="w-100 d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form id="deleteForm" method="post" class="flex-fill">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger w-100">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(customerId, customerName) {
+            document.getElementById('deleteCustomerName').textContent = customerName;
+            document.getElementById('deleteForm').action = '/Customers/Delete/' + customerId;
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+}
