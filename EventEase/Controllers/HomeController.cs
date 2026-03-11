@@ -1,12 +1,20 @@
-using System.Diagnostics;
 using EventEase.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace EventEase.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public HomeController(SignInManager<IdentityUser> signInManager)
+        {
+            _signInManager = signInManager;
+        }
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -15,11 +23,18 @@ namespace EventEase.Controllers
 
         public IActionResult Index()
         {
+
+            if (_signInManager.IsSignedIn(User))
+                return RedirectToAction("Index", "Customer");
+
             return View();
         }
 
         public IActionResult Privacy()
         {
+            if (_signInManager.IsSignedIn(User))
+                return RedirectToAction("Index", "Customer");
+
             return View();
         }
 
