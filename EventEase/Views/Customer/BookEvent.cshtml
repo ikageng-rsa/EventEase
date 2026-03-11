@@ -1,7 +1,7 @@
-﻿@model EventEase.Models.Booking
+﻿@model EventEase.ViewModels.BookEventViewModel
 
 @{
-    ViewData["Title"] = "New Booking";
+    ViewData["Title"] = $"Book Event — {Model.CustomerName}";
     Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
 }
 
@@ -12,20 +12,23 @@
                 <div class="col">
                     <div class="page-pretitle text-azure">
                         EventEase &rsaquo;
-                        <a asp-controller="Booking" asp-action="Index" class="text-azure text-decoration-none">Bookings</a>
-                        &rsaquo; New Booking
+                        <a asp-controller="Customer" asp-action="Index" class="text-azure text-decoration-none">Customers</a>
+                        &rsaquo;
+                        <a asp-controller="Customer" asp-action="Profile" asp-route-id="@Model.CustomerId"
+                           class="text-azure text-decoration-none">@Model.CustomerName</a>
+                        &rsaquo; Book Event
                     </div>
-                    <h2 class="page-title fw-bold">New Booking</h2>
+                    <h2 class="page-title fw-bold">Book Event</h2>
                 </div>
                 <div class="col-auto ms-auto">
-                    <a asp-controller="Booking" asp-action="Index"
+                    <a asp-controller="Customer" asp-action="Profile" asp-route-id="@Model.CustomerId"
                        class="btn btn-outline-secondary d-flex align-items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12" />
                             <polyline points="12 19 5 12 12 5" />
                         </svg>
-                        Back to Bookings
+                        Back to Profile
                     </a>
                 </div>
             </div>
@@ -36,6 +39,24 @@
         <div class="container-xl">
             <div class="row justify-content-center">
                 <div class="col-lg-7 col-xl-6">
+
+                    <!-- Customer context banner -->
+                    <div class="card border-0 shadow-sm mb-3"
+                         style="background: linear-gradient(135deg, #e8f4fd 0%, #d0eaf9 100%);">
+                        <div class="card-body py-3 px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="avatar avatar-md rounded-circle bg-azure text-white fw-bold fs-5">
+                                    @Model.CustomerName[0].ToString().ToUpper()
+                                </span>
+                                <div>
+                                    <div class="fw-semibold text-dark">@Model.CustomerName</div>
+                                    <div class="text-muted small">Creating a new booking for this customer</div>
+                                </div>
+                                <span class="badge bg-azure-lt text-azure ms-auto">New Booking</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-white border-bottom py-3">
                             <div class="d-flex align-items-center gap-2">
@@ -51,32 +72,14 @@
                         </div>
 
                         <div class="card-body p-4">
-                            <form asp-controller="Booking" asp-action="Create" method="post" novalidate>
+                            <form asp-controller="Customer" asp-action="BookEvent" asp-route-id="@Model.CustomerId"
+                                  method="post" novalidate>
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" id="venueIdHidden" name="VenueId" value="0" />
+                                <input type="hidden" name="CustomerId" value="@Model.CustomerId" />
+                                <input type="hidden" name="CustomerName" value="@Model.CustomerName" />
+                                <input type="hidden" id="venueIdHidden" name="VenueId" value="@Model.VenueId" />
 
                                 <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 py-2" role="alert"></div>
-
-                                <!-- Customer -->
-                                <div class="mb-3">
-                                    <label asp-for="CustomerId" class="form-label fw-medium">
-                                        Customer <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-azure-lt border-end-0 text-azure">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                                <circle cx="12" cy="7" r="4" />
-                                            </svg>
-                                        </span>
-                                        <select asp-for="CustomerId" asp-items="ViewBag.CustomerId"
-                                                class="form-select border-start-0">
-                                            <option value="">— Select a customer —</option>
-                                        </select>
-                                    </div>
-                                    <span asp-validation-for="CustomerId" class="text-danger small"></span>
-                                </div>
 
                                 <!-- Event -->
                                 <div class="mb-3">
@@ -93,7 +96,7 @@
                                                 <line x1="3" y1="10" x2="21" y2="10" />
                                             </svg>
                                         </span>
-                                        <select asp-for="EventId" asp-items="ViewBag.EventId"
+                                        <select asp-for="EventId" asp-items="Model.Events"
                                                 class="form-select border-start-0" id="eventSelect">
                                             <option value="">— Select an event —</option>
                                         </select>
@@ -114,6 +117,7 @@
                                         </span>
                                         <input type="text" id="venueDisplay"
                                                class="form-control border-start-0 bg-light"
+                                               value="@(Model.VenueName != string.Empty ? Model.VenueName : "")"
                                                placeholder="Auto-filled when you select an event"
                                                readonly />
                                     </div>
@@ -135,6 +139,7 @@
                                         </span>
                                         <input type="text" id="dateDisplay"
                                                class="form-control border-start-0 bg-light"
+                                               value="@(Model.BookingDate != default ? Model.BookingDate.ToString("dd MMM yyyy") : "")"
                                                placeholder="Auto-filled when you select an event"
                                                readonly />
                                     </div>
@@ -142,7 +147,7 @@
                                 </div>
 
                                 <div class="d-flex gap-2 pt-2 border-top">
-                                    <a asp-controller="Booking" asp-action="Index"
+                                    <a asp-controller="Customer" asp-action="Profile" asp-route-id="@Model.CustomerId"
                                        class="btn btn-outline-secondary flex-fill">Cancel</a>
                                     <button type="submit"
                                             class="btn btn-azure flex-fill d-flex align-items-center justify-content-center gap-2">
@@ -158,6 +163,7 @@
                             </form>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

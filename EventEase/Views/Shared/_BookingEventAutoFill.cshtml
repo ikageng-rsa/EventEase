@@ -1,0 +1,43 @@
+﻿@* 
+    _BookingEventAutoFill.cshtml
+    Partial view — include in Booking Create and Edit views to enforce date and venue on booking
+*@
+<script>
+    (function () {
+        const eventSelect   = document.getElementById('eventSelect');
+        const venueDisplay  = document.getElementById('venueDisplay');
+        const venueIdHidden = document.getElementById('venueIdHidden');
+        const dateDisplay   = document.getElementById('dateDisplay');
+
+        async function loadEventDetails(eventId) {
+            if (!eventId) {
+                venueDisplay.value  = '';
+                venueIdHidden.value = '0';
+                dateDisplay.value   = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/bookings/event-details/${eventId}`);
+                const data = await response.json();
+
+                venueDisplay.value  = data.venueName      || 'No venue assigned';
+                venueIdHidden.value = data.venueId        || '0';
+                dateDisplay.value   = data.eventDateDisplay || '';
+            } catch {
+                venueDisplay.value  = 'Could not load venue';
+                dateDisplay.value   = 'Could not load date';
+                venueIdHidden.value = '0';
+            }
+        }
+
+        eventSelect.addEventListener('change', function () {
+            loadEventDetails(this.value);
+        });
+
+        // On page load — trigger lookup if an event is already selected (e.g. Edit, or validation failure)
+        if (eventSelect.value) {
+            loadEventDetails(eventSelect.value);
+        }
+    })();
+</script>

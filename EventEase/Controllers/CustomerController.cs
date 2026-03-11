@@ -1,14 +1,15 @@
 ﻿using EventEase.Data;
 using EventEase.Models;
-using Microsoft.AspNetCore.Mvc;
+using EventEase.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventEase.Controllers
 {
     [Authorize]
     [Route("customers")]
-
     public class CustomerController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,7 +19,7 @@ namespace EventEase.Controllers
             _context = context;
         }
 
-        // GET: Customer
+        // GET: /customers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
@@ -26,14 +27,113 @@ namespace EventEase.Controllers
             return View(customers);
         }
 
-        // GET: Customer/Create
-        [HttpGet("create")]
-        public IActionResult Create()
+        // GET: /customers/profile/5
+        [HttpGet("profile/{id}")]
+        public async Task<IActionResult> Profile(int id)
         {
-            return View();
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                TempData["ErrorMessage"] = "Customer not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var bookings = await _context.Bookings
+                .Include(b => b.Event)
+                .Include(b => b.Venue)
+                .Where(b => b.CustomerId == id)
+                .OrderByDescending(b => b.Event!.EventDate)
+                .ToListAsync();
+
+            var viewModel = new CustomerProfileViewModel
+            {
+                Customer = customer,
+                Bookings = bookings
+            };
+
+            return View(viewModel);
         }
 
-        // POST: Customer/Create
+        // GET: /customers/5/book
+        [HttpGet("{id}/book")]
+        public async Task<IActionResult> BookEvent(int id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                TempData["ErrorMessage"] = "Customer not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var viewModel = new BookEventViewModel
+            {
+                CustomerId = id,
+                CustomerName = customer.FullName,
+                BookingDate = DateTime.Today,
+                Events = await BuildEventsSelectList()
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: /customers/5/book
+        [HttpPost("{id}/book")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookEvent(int id, BookEventViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                // Load the event to get its VenueId — venue is enforced from the event
+                var selectedEvent = await _context.Events
+                    .Include(e => e.Venue)
+                    .FirstOrDefaultAsync(e => e.Id == viewModel.EventId);
+
+                if (selectedEvent == null)
+                {
+                    ModelState.AddModelError("EventId", "The selected event no longer exists.");
+                }
+                else
+                {
+                    var booking = new Booking
+                    {
+                        CustomerId = id,
+                        EventId = selectedEvent.Id,
+                        VenueId = selectedEvent.VenueId,
+                        BookingDate = selectedEvent.EventDate,
+                    };
+
+                    _context.Bookings.Add(booking);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully for {viewModel.CustomerName}.";
+                    return RedirectToAction("Index", "Booking");
+                }
+            }
+
+            // Repopulate on validation failure
+            var customer = await _context.Customers.FindAsync(id);
+            viewModel.CustomerName = customer?.FullName ?? string.Empty;
+            viewModel.Events = await BuildEventsSelectList(viewModel.EventId);
+
+            // Re-fetch venue name if an event was selected
+            if (viewModel.EventId > 0)
+            {
+                var ev = await _context.Events.Include(e => e.Venue).FirstOrDefaultAsync(e => e.Id == viewModel.EventId);
+                if (ev?.Venue != null)
+                {
+                    viewModel.VenueId = ev.VenueId;
+                    viewModel.VenueName = ev.Venue.VenueName;
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        // GET: /customers/create
+        [HttpGet("create")]
+        public IActionResult Create() => View();
+
+        // POST: /customers/create
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FullName,Email,Phone")] Customer customer)
@@ -48,7 +148,7 @@ namespace EventEase.Controllers
             return View(customer);
         }
 
-        // GET: Customer/Edit/5
+        // GET: /customers/edit/5
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -61,7 +161,7 @@ namespace EventEase.Controllers
             return View(customer);
         }
 
-        // POST: Customer/Edit/5
+        // POST: /customers/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email,Phone")] Customer customer)
@@ -94,7 +194,7 @@ namespace EventEase.Controllers
             return View(customer);
         }
 
-        // POST: Customer/Delete/5
+        // POST: /customers/delete/5
         [HttpPost("delete/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -112,9 +212,23 @@ namespace EventEase.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
+        private bool CustomerExists(int id) =>
+            _context.Customers.Any(c => c.Id == id);
+
+        private async Task<SelectList> BuildEventsSelectList(int selectedId = 0)
         {
-            return _context.Customers.Any(c => c.Id == id);
+            var events = await _context.Events
+                .Include(e => e.Venue)
+                .OrderBy(e => e.EventDate)
+                .ToListAsync();
+
+            var items = events.Select(e => new
+            {
+                e.Id,
+                Display = $"{e.EventName} — {e.EventDate:dd MMM yyyy} @ {e.Venue?.VenueName ?? "No venue"}"
+            });
+
+            return new SelectList(items, "Id", "Display", selectedId == 0 ? (object?)null : selectedId);
         }
     }
 }

@@ -43,17 +43,32 @@ namespace EventEase.Controllers
         // POST: /bookings/create
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,VenueId,EventId,BookingDate")] Booking booking)
+        public async Task<IActionResult> Create([Bind("CustomerId,EventId")] Booking booking)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Booking #{booking.Id} was created successfully.";
-                return RedirectToAction(nameof(Index));
+                // Load the event to enforce venue and date server-side
+                var selectedEvent = await _context.Events
+                    .Include(e => e.Venue)
+                    .FirstOrDefaultAsync(e => e.Id == booking.EventId);
+
+                if (selectedEvent == null)
+                {
+                    ModelState.AddModelError("EventId", "The selected event no longer exists.");
+                }
+                else
+                {
+                    booking.VenueId = selectedEvent.VenueId;
+                    booking.BookingDate = selectedEvent.EventDate;
+
+                    _context.Add(booking);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
-            await PopulateDropdowns(booking.CustomerId, booking.VenueId, booking.EventId);
+            await PopulateDropdowns(booking.CustomerId, booking.EventId);
             return View(booking);
         }
 
@@ -61,21 +76,25 @@ namespace EventEase.Controllers
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
+            var booking = await _context.Bookings
+                .Include(b => b.Event)
+                .ThenInclude(e => e!.Venue)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (booking == null)
             {
                 TempData["ErrorMessage"] = "Booking not found.";
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateDropdowns(booking.CustomerId, booking.VenueId, booking.EventId);
+            await PopulateDropdowns(booking.CustomerId, booking.EventId);
             return View(booking);
         }
 
         // POST: /bookings/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,VenueId,EventId,BookingDate")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,EventId")] Booking booking)
         {
             if (id != booking.Id)
             {
@@ -85,25 +104,40 @@ namespace EventEase.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                // Load the event to enforce venue and date server-side
+                var selectedEvent = await _context.Events
+                    .Include(e => e.Venue)
+                    .FirstOrDefaultAsync(e => e.Id == booking.EventId);
+
+                if (selectedEvent == null)
                 {
-                    _context.Update(booking);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Booking #{booking.Id} was updated successfully.";
-                    return RedirectToAction(nameof(Index));
+                    ModelState.AddModelError("EventId", "The selected event no longer exists.");
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!BookingExists(booking.Id))
+                    booking.VenueId = selectedEvent.VenueId;
+                    booking.BookingDate = selectedEvent.EventDate;
+
+                    try
                     {
-                        TempData["ErrorMessage"] = "Booking not found.";
+                        _context.Update(booking);
+                        await _context.SaveChangesAsync();
+                        TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was updated successfully.";
                         return RedirectToAction(nameof(Index));
                     }
-                    throw;
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!BookingExists(booking.Id))
+                        {
+                            TempData["ErrorMessage"] = "Booking not found.";
+                            return RedirectToAction(nameof(Index));
+                        }
+                        throw;
+                    }
                 }
             }
 
-            await PopulateDropdowns(booking.CustomerId, booking.VenueId, booking.EventId);
+            await PopulateDropdowns(booking.CustomerId, booking.EventId);
             return View(booking);
         }
 
@@ -121,27 +155,38 @@ namespace EventEase.Controllers
 
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Booking #{id} was deleted successfully.";
+            TempData["SuccessMessage"] = $"Booking #{id.ToString("D4")} was deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BookingExists(int id)
+        // GET: /bookings/event-details/5
+        // Returns venue and date for a given event as JSON — called by Create/Edit forms via JS
+        [HttpGet("event-details/{eventId}")]
+        public async Task<IActionResult> GetEventDetails(int eventId)
         {
-            return _context.Bookings.Any(b => b.Id == id);
+            var ev = await _context.Events
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+
+            if (ev == null)
+                return Json(new { venueId = 0, venueName = "", eventDate = "", eventDateDisplay = "" });
+
+            return Json(new
+            {
+                venueId = ev.VenueId,
+                venueName = ev.Venue?.VenueName ?? "",
+                eventDate = ev.EventDate.ToString("yyyy-MM-dd"),
+                eventDateDisplay = ev.EventDate.ToString("dd MMM yyyy")
+            });
         }
 
-        // Populates all three dropdowns, pre-selecting current values if provided
-        private async Task PopulateDropdowns(
-            int? selectedCustomerId = null,
-            int? selectedVenueId = null,
-            int? selectedEventId = null)
+        private bool BookingExists(int id) =>
+            _context.Bookings.Any(b => b.Id == id);
+
+        private async Task PopulateDropdowns(int? selectedCustomerId = null, int? selectedEventId = null)
         {
             var customers = await _context.Customers
                 .OrderBy(c => c.FullName)
-                .ToListAsync();
-
-            var venues = await _context.Venues
-                .OrderBy(v => v.VenueName)
                 .ToListAsync();
 
             var events = await _context.Events
@@ -150,18 +195,14 @@ namespace EventEase.Controllers
                 .ToListAsync();
 
             ViewBag.CustomerId = new SelectList(customers, "Id", "FullName", selectedCustomerId);
-            ViewBag.VenueId = new SelectList(venues, "Id", "VenueName", selectedVenueId);
 
-            // Show event name with date for clarity in the dropdown
             ViewBag.EventId = new SelectList(
                 events.Select(e => new
                 {
                     e.Id,
-                    Display = $"{e.EventName} — {e.EventDate:dd MMM yyyy}"
+                    Display = $"{e.EventName} — {e.EventDate:dd MMM yyyy} @ {e.Venue?.VenueName ?? "No venue"}"
                 }),
-                "Id",
-                "Display",
-                selectedEventId
+                "Id", "Display", selectedEventId
             );
         }
     }

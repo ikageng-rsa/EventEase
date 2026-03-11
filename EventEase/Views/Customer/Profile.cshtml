@@ -1,0 +1,235 @@
+﻿@model EventEase.ViewModels.CustomerProfileViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Customer.FullName} — Profile";
+    Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle text-azure">
+                        EventEase &rsaquo;
+                        <a asp-controller="Customer" asp-action="Index" class="text-azure text-decoration-none">Customers</a>
+                        &rsaquo; Profile
+                    </div>
+                    <h2 class="page-title fw-bold">@Model.Customer.FullName</h2>
+                </div>
+                <div class="col-auto ms-auto d-flex gap-2">
+                    <a asp-controller="Customer" asp-action="BookEvent" asp-route-id="@Model.Customer.Id"
+                       class="btn btn-azure d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                            <line x1="12" y1="15" x2="12" y2="19" />
+                            <line x1="10" y1="17" x2="14" y2="17" />
+                        </svg>
+                        Book Event
+                    </a>
+                    <a asp-controller="Customer" asp-action="Index"
+                       class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                        @TempData["SuccessMessage"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row g-3 mb-3">
+
+                <!-- Customer details card -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center py-4">
+                            <span class="avatar avatar-xl rounded-circle bg-azure text-white fw-bold mb-3 d-inline-flex"
+                                  style="font-size: 1.75rem; width: 72px; height: 72px;">
+                                @Model.Customer.FullName[0].ToString().ToUpper()
+                            </span>
+                            <h3 class="fw-bold mb-1">@Model.Customer.FullName</h3>
+
+                            <div class="d-flex flex-column gap-2 mt-3 text-start">
+                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.875rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-azure flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                                    @Model.Customer.Email
+                                </div>
+                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.875rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-azure flex-shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z" /></svg>
+                                    @Model.Customer.Phone
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top">
+                                <a asp-controller="Customer" asp-action="Edit" asp-route-id="@Model.Customer.Id"
+                                   class="btn btn-sm btn-outline-azure w-100">
+                                    Edit Customer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats cards -->
+                <div class="col-md-8">
+                    <div class="row g-3 h-100">
+                        <div class="col-sm-4">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body text-center py-4">
+                                    <div class="display-6 fw-bold text-azure mb-1">@Model.TotalBookings</div>
+                                    <div class="text-muted" style="font-size:0.85rem;">Total Bookings</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body text-center py-4">
+                                    <div class="display-6 fw-bold text-success mb-1">@Model.UpcomingEvents</div>
+                                    <div class="text-muted" style="font-size:0.85rem;">Upcoming Events</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body text-center py-4">
+                                    <div class="display-6 fw-bold text-muted mb-1">@Model.PastEvents</div>
+                                    <div class="text-muted" style="font-size:0.85rem;">Past Events</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick action -->
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm"
+                                 style="background: linear-gradient(135deg, #3b9ddd 0%, #206fad 100%);">
+                                <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-white fw-semibold">Ready to make a booking?</div>
+                                        <div style="color: rgba(255,255,255,0.75); font-size: 0.85rem;">
+                                            Select an event and venue for @Model.Customer.FullName
+                                        </div>
+                                    </div>
+                                    <a asp-controller="Customer" asp-action="BookEvent" asp-route-id="@Model.Customer.Id"
+                                       class="btn btn-sm flex-shrink-0"
+                                       style="background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4);">
+                                        Book Event →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bookings table -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                        </span>
+                        <h3 class="card-title mb-0 fw-semibold">Booking History</h3>
+                        <span class="badge bg-azure-lt text-azure ms-1">@Model.TotalBookings</span>
+                    </div>
+                    <a asp-controller="Customer" asp-action="BookEvent" asp-route-id="@Model.Customer.Id"
+                       class="btn btn-sm btn-azure d-flex align-items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Book Event
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-vcenter table-hover card-table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-muted fw-semibold" style="width:110px;">Booking ID</th>
+                                <th class="text-muted fw-semibold">Event</th>
+                                <th class="text-muted fw-semibold">Venue</th>
+                                <th class="text-muted fw-semibold">Event Date</th>
+                                <th class="text-muted fw-semibold">Booked On</th>
+                                <th class="text-muted fw-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Bookings.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="empty">
+                                            <p class="empty-title">No bookings yet</p>
+                                            <p class="empty-subtitle text-muted">
+                                                @Model.Customer.FullName has no bookings. Click "Book Event" to create one.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var booking in Model.Bookings)
+                                {
+                                    var isUpcoming = booking.Event?.EventDate.Date >= DateTime.Today;
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-azure-lt text-azure fw-semibold" style="font-size:0.8rem;">
+                                                #@booking.Id.ToString("D4")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-medium">@(booking.Event?.EventName ?? "—")</div>
+                                        </td>
+                                        <td class="text-muted">
+                                            @(booking.Venue?.VenueName ?? "—")
+                                        </td>
+                                        <td>
+                                            <div class="fw-medium">@(booking.Event?.EventDate.ToString("dd MMM yyyy") ?? "—")</div>
+                                        </td>
+                                        <td class="text-muted">
+                                            @booking.BookingDate.ToString("dd MMM yyyy")
+                                        </td>
+                                        <td>
+                                            @if (isUpcoming)
+                                            {
+                                                <span class="badge bg-success-lt text-success">Upcoming</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary-lt text-secondary">Completed</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
