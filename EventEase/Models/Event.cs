@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EventEase.Validation;
 
 namespace EventEase.Models
 {
@@ -14,6 +15,7 @@ namespace EventEase.Models
 
         [Required(ErrorMessage = "Event date is required.")]
         [DataType(DataType.Date)]
+        [FutureDate]
         [Display(Name = "Event Date")]
         public DateTime EventDate { get; set; }
 
