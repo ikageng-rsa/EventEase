@@ -94,19 +94,31 @@ namespace EventEase.Controllers
                 }
                 else
                 {
-                    var booking = new Booking
+                    // Capacity check — count existing bookings for this event
+                    var existingBookings = await _context.Bookings
+                        .CountAsync(b => b.EventId == selectedEvent.Id);
+
+                    if (existingBookings >= selectedEvent.Venue!.Capacity)
                     {
-                        CustomerId = id,
-                        EventId = selectedEvent.Id,
-                        VenueId = selectedEvent.VenueId,
-                        BookingDate = selectedEvent.EventDate,
-                    };
+                        ModelState.AddModelError("EventId",
+                            $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                    }
+                    else
+                    {
+                        var booking = new Booking
+                        {
+                            CustomerId = id,
+                            EventId = selectedEvent.Id,
+                            VenueId = selectedEvent.VenueId,
+                            BookingDate = selectedEvent.EventDate
+                        };
 
-                    _context.Bookings.Add(booking);
-                    await _context.SaveChangesAsync();
+                        _context.Bookings.Add(booking);
+                        await _context.SaveChangesAsync();
 
-                    TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully for {viewModel.CustomerName}.";
-                    return RedirectToAction("Index", "Booking");
+                        TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully for {viewModel.CustomerName}.";
+                        return RedirectToAction("Index", "Booking");
+                    }
                 }
             }
 
