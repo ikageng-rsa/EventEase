@@ -7,43 +7,227 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EventEase.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/css/tabler.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --ee-azure: #3b9ddd;
+            --ee-azure-dark: #206fad;
+            --ee-azure-lt: #e8f4fd;
+            --ee-text: #1a2b3c;
+            --ee-muted: #6b8599;
+            --ee-border: #e2ecf5;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f0f6fc;
+            color: var(--ee-text);
+        }
+
+        /* ── Navbar ─────────────────────────────────── */
+        .ee-navbar {
+            background: #fff;
+            border-bottom: 1px solid var(--ee-border);
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(59, 157, 221, 0.06);
+        }
+
+            .ee-navbar .container-fluid {
+                padding: 0 1.5rem;
+                height: 60px;
+            }
+
+        .ee-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--ee-text);
+            letter-spacing: -0.3px;
+        }
+
+            .ee-brand:hover {
+                color: var(--ee-azure);
+            }
+
+        .ee-brand-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--ee-azure) 0%, var(--ee-azure-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .ee-brand-logo svg {
+                color: #fff;
+            }
+
+        .ee-nav-link {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--ee-muted) !important;
+            padding: 0.4rem 0.85rem !important;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+            .ee-nav-link:hover {
+                color: var(--ee-azure) !important;
+                background: var(--ee-azure-lt);
+            }
+
+            .ee-nav-link.active {
+                color: var(--ee-azure) !important;
+                background: var(--ee-azure-lt);
+                font-weight: 600;
+            }
+
+        .btn-azure {
+            background-color: var(--ee-azure);
+            border-color: var(--ee-azure);
+            color: #fff;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+            .btn-azure:hover {
+                background-color: var(--ee-azure-dark);
+                border-color: var(--ee-azure-dark);
+                color: #fff;
+            }
+
+        .navbar-toggler {
+            border: 1px solid var(--ee-border);
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+        }
+
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 3px rgba(59,157,221,0.15);
+            }
+
+        /* ── Main content ────────────────────────────── */
+        .ee-main {
+            min-height: calc(100vh - 60px - 56px);
+            padding: 2rem 0;
+        }
+
+        /* ── Footer ──────────────────────────────────── */
+        .ee-footer {
+            background: #fff;
+            border-top: 1px solid var(--ee-border);
+            padding: 1rem 0;
+            font-size: 0.8rem;
+            color: var(--ee-muted);
+        }
+
+            .ee-footer a {
+                color: var(--ee-azure);
+                text-decoration: none;
+            }
+
+                .ee-footer a:hover {
+                    text-decoration: underline;
+                }
+
+        /* ── Utility ──────────────────────────────────── */
+        .text-azure {
+            color: var(--ee-azure) !important;
+        }
+
+        .bg-azure-lt {
+            background-color: var(--ee-azure-lt) !important;
+        }
+    </style>
 </head>
 <body>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm ee-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EventEase</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+
+                <a class="ee-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="ee-brand-logo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                    </div>
+                    EventEase
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
+                    <ul class="navbar-nav flex-grow-1 gap-1 px-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link ee-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Index">
+                                Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link ee-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Privacy">
+                                Privacy
+                            </a>
                         </li>
                     </ul>
+
+                    <!-- Auth links -->
+                    <ul class="navbar-nav gap-2 align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link ee-nav-link" asp-controller="Account" asp-action="Login">
+                                Sign In
+                            </a>
+                        </li>
+                        @* <li class="nav-item">
+                            <a class="btn btn-sm btn-azure px-3" asp-area="Identity" asp-page="/Account/Register">
+                                Register
+                            </a>
+                        </li> *@
+                    </ul>
                 </div>
+
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container ee-main">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - EventEase - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="ee-footer">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>&copy; 2026 EventEase. All rights reserved.</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

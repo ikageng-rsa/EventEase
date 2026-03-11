@@ -1,0 +1,240 @@
+﻿@model EventEase.Models.User
+
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e8f4fd 0%, #f0f6fc 60%, #d0eaf9 100%);
+        min-height: 100vh;
+    }
+
+    .login-wrapper {
+        min-height: calc(100vh - 116px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        border-radius: 16px;
+        border: 1px solid #d0e8f5;
+        box-shadow: 0 4px 24px rgba(59, 157, 221, 0.1);
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #3b9ddd 0%, #206fad 100%);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .login-logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(4px);
+    }
+
+        .login-logo svg {
+            color: #fff;
+        }
+
+    .login-header h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 0.25rem;
+        letter-spacing: -0.3px;
+    }
+
+    .login-header p {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.75);
+        margin: 0;
+    }
+
+    .login-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1a2b3c;
+        margin-bottom: 0.4rem;
+    }
+
+    .input-group-text {
+        background-color: #e8f4fd;
+        border-color: #d0e2f0;
+        border-right: none;
+        color: #3b9ddd;
+    }
+
+    .form-control {
+        border-color: #d0e2f0;
+        border-left: none;
+        font-size: 0.9rem;
+    }
+
+        .form-control:focus {
+            border-color: #3b9ddd;
+            box-shadow: 0 0 0 3px rgba(59, 157, 221, 0.15);
+        }
+
+    /* Keep the left border invisible on focus too */
+    .input-group:focus-within .input-group-text {
+        border-color: #3b9ddd;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #3b9ddd 0%, #206fad 100%);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.65rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: opacity 0.15s ease, transform 0.1s ease;
+        letter-spacing: 0.2px;
+    }
+
+        .btn-login:hover {
+            opacity: 0.92;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+    .login-footer {
+        text-align: center;
+        padding: 1rem 2rem 1.5rem;
+        border-top: 1px solid #e2ecf5;
+        font-size: 0.8rem;
+        color: #8aa4be;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <!-- Header -->
+        <div class="login-header">
+            <div class="login-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+            </div>
+            <h1>EventEase</h1>
+            <p>Booking Management Platform</p>
+        </div>
+
+        <!-- Body -->
+        <div class="login-body">
+
+            <p class="text-muted mb-4" style="font-size: 0.875rem;">
+                Sign in with your EventEase credentials to continue.
+            </p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mb-3" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="flex-shrink-0 mt-1">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                </div>
+            }
+
+            <form asp-action="Login" asp-controller="Account" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                        </span>
+                        <input asp-for="Email" class="form-control" type="email"
+                               placeholder="you@eventease.co.za" autocomplete="email" autofocus />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                        </span>
+                        <input asp-for="Password" class="form-control" type="password"
+                               placeholder="••••••••" autocomplete="current-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="form-check mb-0">
+                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                        <label asp-for="RememberMe" class="form-check-label" style="font-size: 0.85rem;">
+                            Remember me
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    Sign In
+                </button>
+
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            &copy; 2026 EventEase &mdash; Internal use only
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
