@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace EventEase.Controllers
 {
     [Authorize]
+    [Route("customers")]
+
     public class CustomerController : Controller
     {
         private readonly AppDbContext _context;
@@ -17,7 +19,7 @@ namespace EventEase.Controllers
         }
 
         // GET: Customer
-        [Route("customers")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var customers = await _context.Customers.ToListAsync();
@@ -25,16 +27,15 @@ namespace EventEase.Controllers
         }
 
         // GET: Customer/Create
-        [Route("customers/create")]
+        [HttpGet("create")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Customer/Create
-        [HttpPost]
+        [HttpPost("create")]
         [ValidateAntiForgeryToken]
-        [Route("customers/create")]
         public async Task<IActionResult> Create([Bind("FullName,Email,Phone")] Customer customer)
         {
             if (ModelState.IsValid)
@@ -48,7 +49,7 @@ namespace EventEase.Controllers
         }
 
         // GET: Customer/Edit/5
-        [Route("customers/edit/{id}")]
+        [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
@@ -61,9 +62,8 @@ namespace EventEase.Controllers
         }
 
         // POST: Customer/Edit/5
-        [HttpPost]
+        [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        [Route("customers/edit/{id}")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email,Phone")] Customer customer)
         {
             if (id != customer.Id)
@@ -95,9 +95,8 @@ namespace EventEase.Controllers
         }
 
         // POST: Customer/Delete/5
-        [HttpPost]
+        [HttpPost("delete/{id}")]
         [ValidateAntiForgeryToken]
-        [Route("customers/delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
