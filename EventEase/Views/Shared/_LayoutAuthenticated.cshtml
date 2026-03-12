@@ -322,7 +322,7 @@
         <aside class="navbar navbar-vertical navbar-expand-lg d-flex flex-column" style="height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto;">
 
             <!-- Brand -->
-            <a href="/" class="navbar-brand">
+            <a href="/" class="navbar-brand p-3">
                 <div class="brand-logo">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -340,12 +340,12 @@
             </a>
 
             <!-- Navigation -->
-            <nav class="flex-fill pt-2">
+            <nav class="flex-fill pt-2 w-100">
 
                 <div class="nav-section-label">Main</div>
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Dashboard")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Index", "Dashboard")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -359,8 +359,8 @@
 
                 <div class="nav-section-label">Management</div>
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Customer")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")">
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Index", "Customer")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -372,8 +372,8 @@
                             Customers
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Venue")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Venue" ? "active" : "")">
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Index", "Venue")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Venue" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -383,8 +383,8 @@
                             Venues
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Event")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Event" ? "active" : "")">
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Index", "Event")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Event" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -396,8 +396,8 @@
                             Events
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Booking")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Booking" ? "active" : "")">
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Index", "Booking")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Booking" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
