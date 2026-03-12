@@ -14,7 +14,8 @@ namespace EventEase.Controllers
             _signInManager = signInManager;
         }
 
-        // GET: /Account/Login
+        // GET: /login
+        [HttpGet("login")]
         [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -26,8 +27,8 @@ namespace EventEase.Controllers
             return View();
         }
 
-        // POST: /Account/Login
-        [HttpPost]
+        // POST: /login
+        [HttpPost("login")]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(User model, string? returnUrl = null)
@@ -64,13 +65,13 @@ namespace EventEase.Controllers
             return View(model);
         }
 
-        // POST: /Account/Logout
-        [HttpPost]
+        // POST: /logout
+        [HttpPost("logout")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Customer");
+            return RedirectToAction("Login", "Account");
         }
     }
 }

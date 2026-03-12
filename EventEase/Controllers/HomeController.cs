@@ -11,16 +11,14 @@ namespace EventEase.Controllers
 
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public HomeController(SignInManager<IdentityUser> signInManager)
+        public HomeController(SignInManager<IdentityUser> signInManager, ILogger<HomeController> logger)
         {
             _signInManager = signInManager;
-        }
-
-        public HomeController(ILogger<HomeController> logger)
-        {
             _logger = logger;
+
         }
 
+        [HttpGet("")]
         public IActionResult Index()
         {
 
@@ -30,6 +28,7 @@ namespace EventEase.Controllers
             return View();
         }
 
+        [HttpGet("privacy")]
         public IActionResult Privacy()
         {
             if (_signInManager.IsSignedIn(User))
