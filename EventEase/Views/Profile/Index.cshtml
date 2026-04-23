@@ -1,0 +1,399 @@
+@model EventEase.Models.ManageAccountViewModel
+
+@{
+    ViewData["Title"] = "My Account";
+    Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
+    var activeTab = ViewData["ActiveTab"]?.ToString() ?? "profile";
+
+    // Determine active tab from TempData if redirected back with an error
+    if (TempData.Peek("PasswordError") != null) activeTab = "password";
+    if (TempData.Peek("ProfileError") != null)  activeTab = "profile";
+    if (TempData.Peek("AvatarError") != null)   activeTab = "avatar";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle text-azure">EventEase &rsaquo; Account</div>
+                    <h2 class="page-title fw-bold">My Account</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-4">
+
+                <!-- ── Left: identity card ──────────────────────────────── -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card shadow-sm border-0 text-center">
+                        <div class="card-body py-4 px-3">
+
+                            <!-- Avatar display -->
+                            <div class="position-relative d-inline-block mb-3">
+                                @if (!string.IsNullOrEmpty(Model.AvatarBase64))
+                                {
+                                    <img src="@Model.AvatarBase64" alt="Avatar"
+                                        class="rounded-circle border border-2 border-azure"
+                                        style="width:88px;height:88px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <span class="avatar rounded-circle bg-azure text-white fw-bold"
+                                        style="width:88px;height:88px;font-size:2rem;">
+                                        @((Model.CurrentDisplayName ?? Model.CurrentEmail)?[0].ToString().ToUpper() ?? "U")
+                                    </span>
+                                }
+                            </div>
+
+                            <h3 class="fw-bold mb-0" style="font-size:1.1rem;">
+                                @(Model.CurrentDisplayName ?? Model.CurrentEmail.Split('@')[0])
+                            </h3>
+                            <div class="text-muted small mb-3">@Model.CurrentEmail</div>
+                            <span class="badge bg-azure-lt text-azure">Booking Specialist</span>
+
+                            <hr class="my-3" />
+
+                            <!-- Tab nav -->
+                            <div class="d-flex flex-column gap-1">
+                                <button class="btn btn-sm text-start d-flex align-items-center gap-2 tab-btn @(activeTab == "profile" ? "btn-azure" : "btn-outline-secondary")"
+                                    data-tab="profile">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    Profile Details
+                                </button>
+                                <button class="btn btn-sm text-start d-flex align-items-center gap-2 tab-btn @(activeTab == "password" ? "btn-azure" : "btn-outline-secondary")"
+                                    data-tab="password">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    Change Password
+                                </button>
+                                <button class="btn btn-sm text-start d-flex align-items-center gap-2 tab-btn @(activeTab == "avatar" ? "btn-azure" : "btn-outline-secondary")"
+                                    data-tab="avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    Profile Picture
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Right: tab content ───────────────────────────────── -->
+                <div class="col-md-8 col-lg-9">
+
+                    <!-- ── Profile Details tab ─────────────────────────── -->
+                    <div id="tab-profile" class="tab-section @(activeTab == "profile" ? "" : "d-none")">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </span>
+                                    <h3 class="card-title mb-0 fw-semibold">Profile Details</h3>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+
+                                @if (TempData["ProfileSuccess"] != null)
+                                {
+                                    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            @TempData["ProfileSuccess"]
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                @if (TempData["ProfileError"] != null)
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                        @TempData["ProfileError"]
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                <form asp-controller="Manage" asp-action="UpdateProfile" method="post" novalidate>
+                                    @Html.AntiForgeryToken()
+
+                                    <!-- Display Name -->
+                                    <div class="mb-3">
+                                        <label asp-for="Profile.DisplayName" class="form-label fw-medium">
+                                            Display Name <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            </span>
+                                            <input asp-for="Profile.DisplayName" class="form-control border-start-0"
+                                                placeholder="How your name appears in the sidebar" />
+                                        </div>
+                                        <span asp-validation-for="Profile.DisplayName" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="mb-4">
+                                        <label asp-for="Profile.Email" class="form-label fw-medium">
+                                            Email Address <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                            </span>
+                                            <input asp-for="Profile.Email" class="form-control border-start-0"
+                                                type="email" placeholder="your@email.com" />
+                                        </div>
+                                        <span asp-validation-for="Profile.Email" class="text-danger small"></span>
+                                        <div class="form-text">Changing your email will also update your login username.</div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end pt-2 border-top">
+                                        <button type="submit" class="btn btn-azure d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                            Save Changes
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Change Password tab ─────────────────────────── -->
+                    <div id="tab-password" class="tab-section @(activeTab == "password" ? "" : "d-none")">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    </span>
+                                    <h3 class="card-title mb-0 fw-semibold">Change Password</h3>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+
+                                @if (TempData["PasswordSuccess"] != null)
+                                {
+                                    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            @TempData["PasswordSuccess"]
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                @if (TempData["PasswordError"] != null)
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                        @TempData["PasswordError"]
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                <form asp-controller="Manage" asp-action="ChangePassword" method="post" novalidate>
+                                    @Html.AntiForgeryToken()
+
+                                    <!-- Current Password -->
+                                    <div class="mb-3">
+                                        <label asp-for="Password.CurrentPassword" class="form-label fw-medium">
+                                            Current Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            </span>
+                                            <input asp-for="Password.CurrentPassword" class="form-control border-start-0"
+                                                type="password" id="currentPasswordInput" />
+                                            <button type="button" class="btn btn-outline-secondary border-start-0"
+                                                onclick="togglePassword('currentPasswordInput', this)" tabindex="-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                        <span asp-validation-for="Password.CurrentPassword" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- New Password -->
+                                    <div class="mb-3">
+                                        <label asp-for="Password.NewPassword" class="form-label fw-medium">
+                                            New Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            </span>
+                                            <input asp-for="Password.NewPassword" class="form-control border-start-0"
+                                                type="password" id="newPasswordInput" />
+                                            <button type="button" class="btn btn-outline-secondary border-start-0"
+                                                onclick="togglePassword('newPasswordInput', this)" tabindex="-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                        <span asp-validation-for="Password.NewPassword" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- Confirm Password -->
+                                    <div class="mb-4">
+                                        <label asp-for="Password.ConfirmPassword" class="form-label fw-medium">
+                                            Confirm New Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            </span>
+                                            <input asp-for="Password.ConfirmPassword" class="form-control border-start-0"
+                                                type="password" id="confirmPasswordInput" />
+                                            <button type="button" class="btn btn-outline-secondary border-start-0"
+                                                onclick="togglePassword('confirmPasswordInput', this)" tabindex="-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                        <span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end pt-2 border-top">
+                                        <button type="submit" class="btn btn-azure d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                            Update Password
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Profile Picture tab ─────────────────────────── -->
+                    <div id="tab-avatar" class="tab-section @(activeTab == "avatar" ? "" : "d-none")">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    </span>
+                                    <h3 class="card-title mb-0 fw-semibold">Profile Picture</h3>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+
+                                @if (TempData["AvatarSuccess"] != null)
+                                {
+                                    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            @TempData["AvatarSuccess"]
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                @if (TempData["AvatarError"] != null)
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                        @TempData["AvatarError"]
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+
+                                <!-- Current avatar preview -->
+                                <div class="d-flex align-items-center gap-4 mb-4 p-3 rounded border" style="background:#fafcff;">
+                                    <div id="avatarPreviewWrapper">
+                                        @if (!string.IsNullOrEmpty(Model.AvatarBase64))
+                                        {
+                                            <img id="avatarPreview" src="@Model.AvatarBase64" alt="Current avatar"
+                                                class="rounded-circle border border-2 border-azure"
+                                                style="width:72px;height:72px;object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <span id="avatarPreview" class="avatar rounded-circle bg-azure text-white fw-bold d-inline-flex align-items-center justify-content-center"
+                                                style="width:72px;height:72px;font-size:1.75rem;">
+                                                @((Model.CurrentDisplayName ?? Model.CurrentEmail)?[0].ToString().ToUpper() ?? "U")
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold mb-1">Current picture</div>
+                                        <div class="text-muted small">JPEG, PNG, WebP or GIF. Max 200KB.</div>
+                                        @if (!string.IsNullOrEmpty(Model.AvatarBase64))
+                                        {
+                                            <form asp-controller="Manage" asp-action="RemoveAvatar" method="post" class="mt-2 d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove photo</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Upload form -->
+                                <form asp-controller="Manage" asp-action="UploadAvatar" method="post"
+                                    enctype="multipart/form-data" novalidate>
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-medium">Upload New Picture</label>
+                                        <div class="input-group">
+                                            <input type="file" name="avatarFile" id="avatarFileInput"
+                                                class="form-control" accept="image/jpeg,image/png,image/webp,image/gif"
+                                                onchange="previewAvatar(this)" />
+                                        </div>
+                                        <div class="form-text">A preview will appear above when you select a file.</div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end pt-2 border-top">
+                                        <button type="submit" class="btn btn-azure d-flex align-items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                                            Upload Picture
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // ── Tab switching ─────────────────────────────────────────────────────
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const target = this.dataset.tab;
+
+                document.querySelectorAll('.tab-section').forEach(s => s.classList.add('d-none'));
+                document.getElementById('tab-' + target).classList.remove('d-none');
+
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('btn-azure');
+                    b.classList.add('btn-outline-secondary');
+                });
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-azure');
+            });
+        });
+
+        // ── Password visibility toggle ────────────────────────────────────────
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // ── Avatar live preview ───────────────────────────────────────────────
+        function previewAvatar(input) {
+            if (!input.files || !input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrapper = document.getElementById('avatarPreviewWrapper');
+                wrapper.innerHTML = `<img id="avatarPreview" src="${e.target.result}"
+                    class="rounded-circle border border-2 border-azure"
+                    style="width:72px;height:72px;object-fit:cover;" />`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
+}

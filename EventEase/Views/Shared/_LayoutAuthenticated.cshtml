@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.EntityFrameworkCore
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -415,14 +416,43 @@
             </nav>
 
             <!-- Sidebar footer -->
+            @{
+                // Load profile for sidebar display
+                var _db = Context.RequestServices.GetService<EventEase.Data.AppDbContext>();
+                var _um = Context.RequestServices.GetService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>();
+                EventEase.Models.UserProfile? _sidebarProfile = null;
+                if (_db != null && _um != null && User.Identity?.IsAuthenticated == true)
+                {
+                    var _uid = _um.GetUserId(User);
+                    if (_uid != null)
+                        _sidebarProfile = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == _uid);
+                }
+                var _displayName = _sidebarProfile?.DisplayName ?? User.Identity?.Name?.Split('@')[0] ?? "User";
+                var _avatarInitial = _displayName.Length > 0 ? _displayName[0].ToString().ToUpper() : "U";
+            }
             <div class="sidebar-footer">
                 <div class="sidebar-user">
-                    <span class="avatar avatar-sm bg-azure text-white rounded-circle fw-bold">A</span>
-                    <div class="flex-fill">
-                        <div class="sidebar-user-name">@User.Identity?.Name?.Split('@')[0]</div>
-                        <div class="sidebar-user-role">Booking Specialist</div>
-                    </div>
-                    <form asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
+                    <a href="@Url.Action("Index", "Profile")"
+                       class="d-flex align-items-center gap-2 text-decoration-none flex-fill overflow-hidden"
+                       title="Manage account">
+                        @if (!string.IsNullOrEmpty(_sidebarProfile?.AvatarBase64))
+                        {
+                            <img src="@_sidebarProfile.AvatarBase64"
+                                 class="rounded-circle border"
+                                 style="object-fit:cover;width:2rem;height:2rem;flex-shrink:0;" alt="Avatar" />
+                        }
+                        else
+                        {
+                            <span class="avatar avatar-sm bg-azure text-white rounded-circle fw-bold flex-shrink-0">
+                                @_avatarInitial
+                            </span>
+                        }
+                        <div class="flex-fill overflow-hidden">
+                            <div class="sidebar-user-name text-truncate">@_displayName</div>
+                            <div class="sidebar-user-role">Booking Specialist</div>
+                        </div>
+                    </a>
+                    <form href="@Url.Action("Logout", "Account")" method="post" class="mb-0">
                         @Html.AntiForgeryToken()
                         <button type="submit" title="Sign out"
                                 style="background:none;border:none;padding:0;cursor:pointer;color:#8aa4be;"

@@ -25,7 +25,7 @@ namespace EventEase.Controllers
             if (_signInManager.IsSignedIn(User))
                 return RedirectToAction("Index", "Dashboard");
 
-            return View();
+            return Redirect("/login");
         }
 
         [HttpGet("privacy")]
@@ -33,8 +33,8 @@ namespace EventEase.Controllers
         {
             if (_signInManager.IsSignedIn(User))
                 return RedirectToAction("Index", "Dashboard");
-
-            return View();
+            
+            return Redirect("/login");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
