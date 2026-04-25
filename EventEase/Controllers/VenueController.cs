@@ -106,6 +106,22 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Block deletion if any bookings reference this venue
+            var hasBookings = await _context.Bookings.AnyAsync(b => b.VenueId == id);
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = $"\"{venue.VenueName}\" cannot be deleted because it has active bookings. Remove those bookings first.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Block deletion if any events are scheduled at this venue
+            var hasEvents = await _context.Events.AnyAsync(e => e.VenueId == id);
+            if (hasEvents)
+            {
+                TempData["ErrorMessage"] = $"\"{venue.VenueName}\" cannot be deleted because it has events scheduled. Remove or reassign those events first.";
+                return RedirectToAction(nameof(Index));
+            }
+
             _context.Venues.Remove(venue);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"{venue.VenueName} was deleted successfully.";

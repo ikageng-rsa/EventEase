@@ -22,7 +22,6 @@ namespace EventEase.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            // Include Venue so we can display the venue name in the list
             var events = await _context.Events
                 .Include(e => e.Venue)
                 .OrderBy(e => e.EventDate)
@@ -46,10 +45,24 @@ namespace EventEase.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(eventModel);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"{eventModel.EventName} was added successfully.";
-                return RedirectToAction(nameof(Index));
+                // Block duplicate: same venue, same date
+                var conflict = await _context.Events.AnyAsync(e =>
+                    e.VenueId == eventModel.VenueId &&
+                    e.EventDate.Date == eventModel.EventDate.Date);
+
+                if (conflict)
+                {
+                    var venue = await _context.Venues.FindAsync(eventModel.VenueId);
+                    ModelState.AddModelError("EventDate",
+                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Please choose a different date or venue.");
+                }
+                else
+                {
+                    _context.Add(eventModel);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"{eventModel.EventName} was added successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             await PopulateVenuesDropdown(eventModel.VenueId);
@@ -84,21 +97,36 @@ namespace EventEase.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                // Block duplicate: same venue, same date, excluding this event
+                var conflict = await _context.Events.AnyAsync(e =>
+                    e.VenueId == eventModel.VenueId &&
+                    e.EventDate.Date == eventModel.EventDate.Date &&
+                    e.Id != eventModel.Id);
+
+                if (conflict)
                 {
-                    _context.Update(eventModel);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"{eventModel.EventName} was updated successfully.";
-                    return RedirectToAction(nameof(Index));
+                    var venue = await _context.Venues.FindAsync(eventModel.VenueId);
+                    ModelState.AddModelError("EventDate",
+                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Please choose a different date or venue.");
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!EventExists(eventModel.Id))
+                    try
                     {
-                        TempData["ErrorMessage"] = "Event not found.";
+                        _context.Update(eventModel);
+                        await _context.SaveChangesAsync();
+                        TempData["SuccessMessage"] = $"{eventModel.EventName} was updated successfully.";
                         return RedirectToAction(nameof(Index));
                     }
-                    throw;
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!EventExists(eventModel.Id))
+                        {
+                            TempData["ErrorMessage"] = "Event not found.";
+                            return RedirectToAction(nameof(Index));
+                        }
+                        throw;
+                    }
                 }
             }
 
@@ -111,10 +139,21 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var eventModel = await _context.Events.FindAsync(id);
+            var eventModel = await _context.Events
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
             if (eventModel == null)
             {
                 TempData["ErrorMessage"] = "Event not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Block deletion if any bookings are linked to this event
+            var hasBookings = await _context.Bookings.AnyAsync(b => b.EventId == id);
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = $"\"{eventModel.EventName}\" cannot be deleted because it has active bookings. Remove those bookings first.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -124,12 +163,9 @@ namespace EventEase.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EventExists(int id)
-        {
-            return _context.Events.Any(e => e.Id == id);
-        }
+        private bool EventExists(int id) =>
+            _context.Events.Any(e => e.Id == id);
 
-        // Populates ViewBag with venues for the dropdown
         private async Task PopulateVenuesDropdown(int? selectedVenueId = null)
         {
             var venues = await _context.Venues

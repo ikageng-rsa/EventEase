@@ -94,30 +94,43 @@ namespace EventEase.Controllers
                 }
                 else
                 {
-                    // Capacity check — count existing bookings for this event
-                    var existingBookings = await _context.Bookings
-                        .CountAsync(b => b.EventId == selectedEvent.Id);
+                    // Prevent same customer booking the same event twice
+                    var alreadyBooked = await _context.Bookings.AnyAsync(b =>
+                        b.CustomerId == id &&
+                        b.EventId == selectedEvent.Id);
 
-                    if (existingBookings >= selectedEvent.Venue!.Capacity)
+                    if (alreadyBooked)
                     {
                         ModelState.AddModelError("EventId",
-                            $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                            "This customer already has a booking for this event.");
                     }
                     else
                     {
-                        var booking = new Booking
+                        // Capacity check — count existing bookings for this event
+                        var existingBookings = await _context.Bookings
+                            .CountAsync(b => b.EventId == selectedEvent.Id);
+
+                        if (existingBookings >= selectedEvent.Venue!.Capacity)
                         {
-                            CustomerId = id,
-                            EventId = selectedEvent.Id,
-                            VenueId = selectedEvent.VenueId,
-                            BookingDate = selectedEvent.EventDate
-                        };
+                            ModelState.AddModelError("EventId",
+                                $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                        }
+                        else
+                        {
+                            var booking = new Booking
+                            {
+                                CustomerId = id,
+                                EventId = selectedEvent.Id,
+                                VenueId = selectedEvent.VenueId,
+                                BookingDate = selectedEvent.EventDate
+                            };
 
-                        _context.Bookings.Add(booking);
-                        await _context.SaveChangesAsync();
+                            _context.Bookings.Add(booking);
+                            await _context.SaveChangesAsync();
 
-                        TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully for {viewModel.CustomerName}.";
-                        return RedirectToAction("Index", "Booking");
+                            TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully for {viewModel.CustomerName}.";
+                            return RedirectToAction("Index", "Booking");
+                        }
                     }
                 }
             }
@@ -215,6 +228,14 @@ namespace EventEase.Controllers
             if (customer == null)
             {
                 TempData["ErrorMessage"] = "Customer not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Block deletion if customer has active bookings
+            var hasBookings = await _context.Bookings.AnyAsync(b => b.CustomerId == id);
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = $"\"{customer.FullName}\" cannot be deleted because they have active bookings. Remove those bookings first.";
                 return RedirectToAction(nameof(Index));
             }
 

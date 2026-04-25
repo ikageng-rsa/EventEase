@@ -58,24 +58,37 @@ namespace EventEase.Controllers
                 }
                 else
                 {
-                    booking.VenueId = selectedEvent.VenueId;
-                    booking.BookingDate = selectedEvent.EventDate;
+                    // Prevent same customer booking the same event twice
+                    var alreadyBooked = await _context.Bookings.AnyAsync(b =>
+                        b.CustomerId == booking.CustomerId &&
+                        b.EventId == selectedEvent.Id);
 
-                    // Capacity check — count existing bookings for this event
-                    var existingBookings = await _context.Bookings
-                        .CountAsync(b => b.EventId == selectedEvent.Id);
-
-                    if (existingBookings >= selectedEvent.Venue!.Capacity)
+                    if (alreadyBooked)
                     {
                         ModelState.AddModelError("EventId",
-                            $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                            "This customer already has a booking for this event.");
                     }
                     else
                     {
-                        _context.Add(booking);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully.";
-                        return RedirectToAction(nameof(Index));
+                        // Capacity check — count existing bookings for this event
+                        var existingBookings = await _context.Bookings
+                            .CountAsync(b => b.EventId == selectedEvent.Id);
+
+                        if (existingBookings >= selectedEvent.Venue!.Capacity)
+                        {
+                            ModelState.AddModelError("EventId",
+                                $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                        }
+                        else
+                        {
+                            booking.VenueId = selectedEvent.VenueId;
+                            booking.BookingDate = selectedEvent.EventDate;
+
+                            _context.Add(booking);
+                            await _context.SaveChangesAsync();
+                            TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully.";
+                            return RedirectToAction(nameof(Index));
+                        }
                     }
                 }
             }
@@ -127,38 +140,52 @@ namespace EventEase.Controllers
                 }
                 else
                 {
-                    booking.VenueId = selectedEvent.VenueId;
-                    booking.BookingDate = selectedEvent.EventDate;
+                    // Prevent same customer booking the same event twice (exclude current booking)
+                    var alreadyBooked = await _context.Bookings.AnyAsync(b =>
+                        b.CustomerId == booking.CustomerId &&
+                        b.EventId == selectedEvent.Id &&
+                        b.Id != booking.Id);
 
-                    // Capacity check — exclude the current booking from the count
-                    // so editing a booking for the same event doesn't falsely trigger the limit
-                    var existingBookings = await _context.Bookings
-                        .CountAsync(b => b.EventId == selectedEvent.Id && b.Id != booking.Id);
-
-                    if (existingBookings >= selectedEvent.Venue!.Capacity)
+                    if (alreadyBooked)
                     {
                         ModelState.AddModelError("EventId",
-                            $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                            "This customer already has a booking for this event.");
                     }
                     else
                     {
-                        try
+                        // Capacity check — exclude the current booking from the count
+                        // so editing a booking for the same event doesn't falsely trigger the limit
+                        var existingBookings = await _context.Bookings
+                            .CountAsync(b => b.EventId == selectedEvent.Id && b.Id != booking.Id);
+
+                        if (existingBookings >= selectedEvent.Venue!.Capacity)
                         {
-                            _context.Update(booking);
-                            await _context.SaveChangesAsync();
-                            TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was updated successfully.";
-                            return RedirectToAction(nameof(Index));
+                            ModelState.AddModelError("EventId",
+                                $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
                         }
-                        catch (DbUpdateConcurrencyException)
+                        else
                         {
-                            if (!BookingExists(booking.Id))
+                            booking.VenueId = selectedEvent.VenueId;
+                            booking.BookingDate = selectedEvent.EventDate;
+
+                            try
                             {
-                                TempData["ErrorMessage"] = "Booking not found.";
+                                _context.Update(booking);
+                                await _context.SaveChangesAsync();
+                                TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was updated successfully.";
                                 return RedirectToAction(nameof(Index));
                             }
-                            throw;
+                            catch (DbUpdateConcurrencyException)
+                            {
+                                if (!BookingExists(booking.Id))
+                                {
+                                    TempData["ErrorMessage"] = "Booking not found.";
+                                    return RedirectToAction(nameof(Index));
+                                }
+                                throw;
+                            }
                         }
-                    } // end else (capacity check passed)
+                    }
                 }
             }
 
