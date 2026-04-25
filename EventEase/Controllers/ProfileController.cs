@@ -1,6 +1,5 @@
 ﻿using EventEase.Data;
 using EventEase.Models;
-using EventEase.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -70,7 +69,7 @@ namespace EventEase.Controllers
             var profile = await GetOrCreateProfile(user.Id);
             var errors = new List<string>();
 
-            // ── Update email if changed ───────────────────────────────────────
+            // Update email if changed
             if (!string.Equals(user.Email, Profile.Email, StringComparison.OrdinalIgnoreCase))
             {
                 var existingUser = await _userManager.FindByEmailAsync(Profile.Email);
@@ -150,7 +149,7 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // ── Validate type ─────────────────────────────────────────────────
+            // Validate type
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
             if (!allowedTypes.Contains(avatarFile.ContentType.ToLower()))
             {
@@ -158,14 +157,14 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // ── Validate size ─────────────────────────────────────────────────
+            // Validate size
             if (avatarFile.Length > MaxAvatarBytes)
             {
                 TempData["AvatarError"] = "Image must be smaller than 200KB.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // ── Convert to Base64 data URI ────────────────────────────────────
+            // Convert to Base64 data URI
             using var ms = new MemoryStream();
             await avatarFile.CopyToAsync(ms);
             var base64 = Convert.ToBase64String(ms.ToArray());

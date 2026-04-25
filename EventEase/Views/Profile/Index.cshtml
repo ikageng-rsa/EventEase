@@ -27,7 +27,7 @@
         <div class="container-xl">
             <div class="row g-4">
 
-                <!-- ── Left: identity card ──────────────────────────────── -->
+                <!-- identity card -->
                 <div class="col-md-4 col-lg-3">
                     <div class="card shadow-sm border-0 text-center">
                         <div class="card-body py-4 px-3">
@@ -80,10 +80,10 @@
                     </div>
                 </div>
 
-                <!-- ── Right: tab content ───────────────────────────────── -->
+                <!-- tab content -->
                 <div class="col-md-8 col-lg-9">
 
-                    <!-- ── Profile Details tab ─────────────────────────── -->
+                    <!-- Profile Details tab -->
                     <div id="tab-profile" class="tab-section @(activeTab == "profile" ? "" : "d-none")">
                         <div class="card shadow-sm border-0">
                             <div class="card-header bg-white border-bottom py-3">
@@ -115,7 +115,7 @@
                                     </div>
                                 }
 
-                                <form asp-controller="Manage" asp-action="UpdateProfile" method="post" novalidate>
+                                <form action="@Url.Action("UpdateProfile", "Profile")" method="post" novalidate>
                                     @Html.AntiForgeryToken()
 
                                     <!-- Display Name -->
@@ -160,7 +160,7 @@
                         </div>
                     </div>
 
-                    <!-- ── Change Password tab ─────────────────────────── -->
+                    <!-- Change Password tab -->
                     <div id="tab-password" class="tab-section @(activeTab == "password" ? "" : "d-none")">
                         <div class="card shadow-sm border-0">
                             <div class="card-header bg-white border-bottom py-3">
@@ -192,7 +192,7 @@
                                     </div>
                                 }
 
-                                <form asp-controller="Manage" asp-action="ChangePassword" method="post" novalidate>
+                                <form action="@Url.Action("ChangePassword", "Profile")" method="post" novalidate>
                                     @Html.AntiForgeryToken()
 
                                     <!-- Current Password -->
@@ -263,7 +263,7 @@
                         </div>
                     </div>
 
-                    <!-- ── Profile Picture tab ─────────────────────────── -->
+                    <!-- Profile Picture tab -->
                     <div id="tab-avatar" class="tab-section @(activeTab == "avatar" ? "" : "d-none")">
                         <div class="card shadow-sm border-0">
                             <div class="card-header bg-white border-bottom py-3">
@@ -317,7 +317,7 @@
                                         <div class="text-muted small">JPEG, PNG, WebP or GIF. Max 200KB.</div>
                                         @if (!string.IsNullOrEmpty(Model.AvatarBase64))
                                         {
-                                            <form asp-controller="Manage" asp-action="RemoveAvatar" method="post" class="mt-2 d-inline">
+                                            <form action="@Url.Action("RemoveAvatar", "Profile")" method="post" class="mt-2 d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">Remove photo</button>
                                             </form>
@@ -326,7 +326,7 @@
                                 </div>
 
                                 <!-- Upload form -->
-                                <form asp-controller="Manage" asp-action="UploadAvatar" method="post"
+                                <form action="@Url.Action("UploadAvatar", "Profile")" method="post"
                                     enctype="multipart/form-data" novalidate>
                                     @Html.AntiForgeryToken()
 
@@ -360,7 +360,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // ── Tab switching ─────────────────────────────────────────────────────
+        // Tab switching 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const target = this.dataset.tab;
@@ -377,13 +377,13 @@
             });
         });
 
-        // ── Password visibility toggle ────────────────────────────────────────
+        // Password visibility toggle
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);
             input.type = input.type === 'password' ? 'text' : 'password';
         }
 
-        // ── Avatar live preview ───────────────────────────────────────────────
+        // Avatar live preview 
         function previewAvatar(input) {
             if (!input.files || !input.files[0]) return;
             const reader = new FileReader();
