@@ -398,7 +398,7 @@
                         </a>
                     </li>
                     <li class="nav-item pe-2">
-                        <a href="@Url.Action("Index", "Booking")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Booking" ? "active" : "")">
+                        <a href="@Url.Action("Index", "Booking")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Booking" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -409,6 +409,14 @@
                                 <polyline points="10 9 9 9 8 9" />
                             </svg>
                             Bookings
+                        </a>
+                    </li>
+                    <li class="nav-item pe-2">
+                        <a href="@Url.Action("Search", "Booking")" class="nav-link rounded-end-2 @(ViewContext.RouteData.Values["action"]?.ToString() == "Search" || ViewContext.RouteData.Values["action"]?.ToString() == "Details" ? "active" : "")">
+                            <span class="nav-link-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                            </span>
+                            Booking Search
                         </a>
                     </li>
                 </ul>

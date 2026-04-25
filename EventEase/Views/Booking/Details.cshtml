@@ -1,0 +1,265 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = $"Booking #{Model.Id.ToString("D4")}";
+    Layout = "~/Views/Shared/_LayoutAuthenticated.cshtml";
+    var today = DateTime.Today;
+    var isUpcoming = Model.Event?.EventDate.Date >= today;
+    var daysUntil = Model.Event != null ? (Model.Event.EventDate.Date - today).Days : 0;
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle text-azure">
+                        EventEase &rsaquo;
+                        <a href="@Url.Action("Index", "Booking")" class="text-azure text-decoration-none">Bookings</a>
+                        &rsaquo;
+                        <a href="@Url.Action("Search", "Booking")" class="text-azure text-decoration-none">Search</a>
+                        &rsaquo; #@Model.Id.ToString("D4")
+                    </div>
+                    <h2 class="page-title fw-bold d-flex align-items-center gap-2">
+                        Booking #@Model.Id.ToString("D4")
+                        @if (isUpcoming)
+                        {
+                            <span class="badge bg-success-lt text-success fs-6">Upcoming</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary-lt text-secondary fs-6">Completed</span>
+                        }
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-flex gap-2">
+                    <a href="@Url.Action("Edit", "Booking", new { id = Model.Id })"
+                       class="btn btn-outline-azure d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit Booking
+                    </a>
+                    <a href="@Url.Action("Search", "Booking")"
+                       class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back to Search
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+
+            <!-- Booking summary banner -->
+            <div class="card border-0 shadow-sm mb-4"
+                 style="background: linear-gradient(135deg, #e8f4fd 0%, #d0eaf9 100%);">
+                <div class="card-body py-3 px-4">
+                    <div class="row align-items-center g-3">
+                        <div class="col-auto">
+                            <span class="avatar avatar-lg bg-azure text-white rounded fw-bold"
+                                  style="font-size: 1.2rem;">
+                                #@Model.Id.ToString("D4")
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="fw-semibold text-dark" style="font-size:1.05rem;">
+                                @(Model.Customer?.FullName ?? "—") &rarr; @(Model.Event?.EventName ?? "—")
+                            </div>
+                            <div class="text-muted small">
+                                @(Model.Venue?.VenueName ?? "—") &middot;
+                                @(Model.Event?.EventDate.ToString("dddd, dd MMMM yyyy") ?? "")
+                                @if (isUpcoming)
+                                {
+                                    @if (daysUntil == 0)
+                                    {
+                                        <span class="badge bg-danger-lt text-danger ms-1">Today</span>
+                                    }
+                                    else if (daysUntil == 1)
+                                    {
+                                        <span class="badge bg-warning-lt text-warning ms-1">Tomorrow</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-azure-lt text-azure ms-1">In @daysUntil days</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="col-auto text-end">
+                            <div class="text-muted small">Booked on</div>
+                            <div class="fw-semibold">@Model.BookingDate.ToString("dd MMM yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Customer card -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                </span>
+                                <h3 class="card-title mb-0 fw-semibold">Customer</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="avatar avatar-md rounded-circle bg-azure-lt text-azure fw-bold"
+                                      style="font-size:1.1rem;">
+                                    @(Model.Customer?.FullName?[0].ToString().ToUpper() ?? "?")
+                                </span>
+                                <div>
+                                    <div class="fw-semibold">@(Model.Customer?.FullName ?? "—")</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center gap-2 text-muted small">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                        <polyline points="22,6 12,13 2,6" />
+                                    </svg>
+                                    @(Model.Customer?.Email ?? "—")
+                                </div>
+                                <div class="d-flex align-items-center gap-2 text-muted small">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z" />
+                                    </svg>
+                                    @(Model.Customer?.Phone ?? "—")
+                                </div>
+                            </div>
+                            @if (Model.Customer != null)
+                            {
+                                <div class="mt-3 pt-3 border-top">
+                                    <a href="@Url.Action("Profile", "Customer", new { id = Model.Customer.Id })"
+                                       class="btn btn-sm btn-outline-azure w-100">
+                                        View Customer Profile
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event card -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar avatar-sm bg-yellow-lt text-yellow rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                </span>
+                                <h3 class="card-title mb-0 fw-semibold">Event</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="fw-semibold mb-1" style="font-size:1rem;">
+                                @(Model.Event?.EventName ?? "—")
+                            </div>
+                            <div class="d-flex align-items-center gap-2 text-muted small mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                @(Model.Event?.EventDate.ToString("dddd, dd MMMM yyyy") ?? "—")
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Event?.Description))
+                            {
+                                <div class="text-muted small p-2 rounded" style="background:#f8f9fa;line-height:1.6;">
+                                    @Model.Event.Description
+                                </div>
+                            }
+                            @if (isUpcoming && daysUntil >= 0)
+                            {
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-muted small">Time until event</span>
+                                        <span class="badge bg-azure-lt text-azure">
+                                            @(daysUntil == 0 ? "Today" : daysUntil == 1 ? "Tomorrow" : $"{daysUntil} days")
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Venue card -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar avatar-sm bg-green-lt text-green rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                        <polyline points="9 22 9 12 15 12 15 22" />
+                                    </svg>
+                                </span>
+                                <h3 class="card-title mb-0 fw-semibold">Venue</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.Venue?.ImageUrl))
+                            {
+                                <img src="@Model.Venue.ImageUrl" alt="@Model.Venue.VenueName"
+                                     class="rounded mb-3 w-100"
+                                     style="height:120px;object-fit:cover;" />
+                            }
+                            <div class="fw-semibold mb-1" style="font-size:1rem;">
+                                @(Model.Venue?.VenueName ?? "—")
+                            </div>
+                            <div class="d-flex align-items-center gap-1 text-muted small mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                @(Model.Venue?.Location ?? "—")
+                            </div>
+                            <div class="text-muted small">
+                                Capacity: <strong>@(Model.Venue?.Capacity.ToString("N0") ?? "—")</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -211,6 +211,58 @@ namespace EventEase.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: /bookings/search
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string? q)
+        {
+            var viewModel = new BookingSearchViewModel
+            {
+                SearchTerm = q,
+                SearchPerformed = q != null
+            };
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+
+                // Try to parse as a booking ID (numeric search)
+                bool isNumeric = int.TryParse(term, out int bookingId);
+
+                viewModel.Results = await _context.Bookings
+                    .Include(b => b.Customer)
+                    .Include(b => b.Event)
+                        .ThenInclude(e => e!.Venue)
+                    .Include(b => b.Venue)
+                    .Where(b =>
+                        (isNumeric && b.Id == bookingId) ||
+                        b.Event!.EventName.Contains(term))
+                    .OrderByDescending(b => b.BookingDate)
+                    .ToListAsync();
+            }
+
+            return View(viewModel);
+        }
+
+        // GET: /bookings/details/5
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.Event)
+                    .ThenInclude(e => e!.Venue)
+                .Include(b => b.Venue)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (booking == null)
+            {
+                TempData["ErrorMessage"] = "Booking not found.";
+                return RedirectToAction(nameof(Search));
+            }
+
+            return View(booking);
+        }
+
         // GET: /bookings/event-details/5
         // Returns venue and date for a given event as JSON — called by Create/Edit forms via JS
         [HttpGet("event-details/{eventId}")]

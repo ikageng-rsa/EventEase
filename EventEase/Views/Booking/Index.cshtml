@@ -15,8 +15,12 @@
                     </div>
                     <h2 class="page-title fw-bold">Bookings</h2>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <a asp-controller="Booking" asp-action="Create" class="btn btn-azure d-flex align-items-center gap-2">
+                <div class="col-auto ms-auto d-print-none d-flex gap-2">
+                    <a href="@Url.Action("Search", "Booking")" class="btn btn-outline-azure d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        Search
+                    </a>
+                    <a href="@Url.Action("Create", "Booking")" class="btn btn-azure d-flex align-items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round">
@@ -112,7 +116,7 @@
                                             <p class="empty-title">No bookings yet</p>
                                             <p class="empty-subtitle text-muted">Create your first booking to get started.</p>
                                             <div class="empty-action">
-                                                <a asp-controller="Booking" asp-action="Create" class="btn btn-azure">New Booking</a>
+                                                <a href="@Url.Action("Create", "Booking")" class="btn btn-azure">New Booking</a>
                                             </div>
                                         </div>
                                     </td>
@@ -168,7 +172,7 @@
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex justify-content-end gap-1">
-                                                <a asp-controller="Booking" asp-action="Edit" asp-route-id="@booking.Id"
+                                                <a href="@Url.Action("Edit", "Booking", new { id = booking.Id })"
                                                    class="btn btn-sm btn-outline-azure d-flex align-items-center gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                          viewBox="0 0 24 24" fill="none" stroke="currentColor"
