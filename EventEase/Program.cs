@@ -22,9 +22,9 @@ builder.Services.AddSingleton<EventEase.Services.IBlobStorageService,
     EventEase.Services.BlobStorageService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
-    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnection:blobServiceUri"]!).WithName("StorageConnection");
-    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnection:queueServiceUri"]!).WithName("StorageConnection");
-    clientBuilder.AddTableServiceClient(builder.Configuration["StorageConnection:tableServiceUri"]!).WithName("StorageConnection");
+    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnection:ConnectionString:blobServiceUri"]!).WithName("StorageConnection:ConnectionString");
+    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnection:ConnectionString:queueServiceUri"]!).WithName("StorageConnection:ConnectionString");
+    clientBuilder.AddTableServiceClient(builder.Configuration["StorageConnection:ConnectionString:tableServiceUri"]!).WithName("StorageConnection:ConnectionString");
 });
 
 var app = builder.Build();

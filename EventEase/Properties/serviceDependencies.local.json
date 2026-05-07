@@ -6,7 +6,13 @@
     "storage1": {
       "secretStore": "LocalSecretsFile",
       "type": "storage.emulator",
-      "connectionId": "StorageConnection",
+      "connectionId": "AzureStorage:ConnectionString",
+      "dynamicId": null
+    },
+    "mssql1": {
+      "secretStore": "LocalSecretsFile",
+      "type": "mssql.local",
+      "connectionId": "ConnectionStrings:DefaultConnection",
       "dynamicId": null
     }
   }

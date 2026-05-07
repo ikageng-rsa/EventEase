@@ -66,4 +66,4 @@ namespace EventEase.Services
             await blobClient.DeleteIfExistsAsync();
         }
     }
-}   
+}

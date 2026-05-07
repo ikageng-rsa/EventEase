@@ -72,9 +72,10 @@
                         </div>
 
                         <div class="card-body p-4">
-                            <form asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+                            <form asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" novalidate>
                                 @Html.AntiForgeryToken()
                                 <input asp-for="Id" type="hidden" />
+                                <input asp-for="ImageUrl" type="hidden" />
 
                                 <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 py-2" role="alert"></div>
 
@@ -152,6 +153,32 @@
                                     </div>
                                 </div>
 
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium">Event Image <span class="text-muted fw-normal">(optional)</span></label>
+                                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        <div class="mb-2">
+                                            <img src="@Model.ImageUrl" alt="Current image"
+                                                 class="rounded border w-100"
+                                                 style="height:140px;object-fit:cover;" />
+                                            <div class="text-muted small mt-1">Current image — upload a new one to replace it.</div>
+                                        </div>
+                                    }
+                                    <input type="file" name="imageFile" id="imageFile"
+                                           class="form-control" accept="image/jpeg,image/png,image/webp,image/gif"
+                                           onchange="previewImage(this)" />
+                                    <span class="text-danger small">@(ViewData.ModelState["imageFile"]?.Errors.FirstOrDefault()?.ErrorMessage ?? "")</span>
+                                    <div class="form-text">JPEG, PNG, WebP or GIF. Max 5 MB. Leave blank to keep existing image.</div>
+                                </div>
+
+                                <div id="imagePreviewContainer" class="mb-4 d-none">
+                                    <label class="form-label fw-medium">New Image Preview</label>
+                                    <div style="border-radius:8px;overflow:hidden;border:1px solid #e2ecf5;height:140px;">
+                                        <img id="imagePreview" src="" alt="Preview"
+                                             style="width:100%;height:100%;object-fit:cover;" />
+                                    </div>
+                                </div>
+
                                 <div class="d-flex gap-2 pt-2 border-top">
                                     <a asp-controller="Event" asp-action="Index" class="btn btn-outline-secondary flex-fill">
                                         Cancel
@@ -182,6 +209,20 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        function previewImage(input) {
+            const container = document.getElementById('imagePreviewContainer');
+            const img = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    img.src = e.target.result;
+                    container.classList.remove('d-none');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
     <script>
         const textarea = document.getElementById('Description');
         const charCount = document.getElementById('charCount');

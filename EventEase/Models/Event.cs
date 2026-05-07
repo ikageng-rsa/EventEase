@@ -15,7 +15,7 @@ namespace EventEase.Models
 
         [Required(ErrorMessage = "Event date is required.")]
         [DataType(DataType.Date)]
-        [FutureDate(ErrorMessage = "Event date must be in the future.")]
+        [FutureDate]
         [Display(Name = "Event Date")]
         public DateTime EventDate { get; set; }
 
@@ -23,6 +23,9 @@ namespace EventEase.Models
         [StringLength(1000, MinimumLength = 10, ErrorMessage = "Description must be between 10 and 1000 characters.")]
         [Display(Name = "Description")]
         public string Description { get; set; } = string.Empty;
+
+        [Display(Name = "Event Image")]
+        public string? ImageUrl { get; set; }
 
         [Required(ErrorMessage = "Please select a venue.")]
         [Display(Name = "Venue")]

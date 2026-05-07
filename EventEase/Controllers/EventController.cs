@@ -1,5 +1,6 @@
 ﻿using EventEase.Data;
 using EventEase.Models;
+using EventEase.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,10 +13,17 @@ namespace EventEase.Controllers
     public class EventController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IBlobStorageService _blob;
 
-        public EventController(AppDbContext context)
+        private static readonly string[] AllowedTypes =
+            { "image/jpeg", "image/png", "image/webp", "image/gif" };
+
+        private const long MaxBytes = 5 * 1024 * 1024;
+
+        public EventController(AppDbContext context, IBlobStorageService blob)
         {
             _context = context;
+            _blob = blob;
         }
 
         // GET: /events
@@ -41,8 +49,26 @@ namespace EventEase.Controllers
         // POST: /events/create
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventName,EventDate,Description,VenueId")] Event eventModel)
+        public async Task<IActionResult> Create(
+            [Bind("EventName,EventDate,Description,VenueId")] Event eventModel,
+            IFormFile? imageFile)
         {
+            // Handle image upload before ModelState check
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadError = ValidateImage(imageFile);
+                if (uploadError != null)
+                {
+                    ModelState.AddModelError("imageFile", uploadError);
+                    await PopulateVenuesDropdown(eventModel.VenueId);
+                    return View(eventModel);
+                }
+
+                using var stream = imageFile.OpenReadStream();
+                eventModel.ImageUrl = await _blob.UploadAsync(
+                    stream, imageFile.FileName, imageFile.ContentType);
+            }
+
             if (ModelState.IsValid)
             {
                 // Block duplicate: same venue, same date
@@ -54,7 +80,7 @@ namespace EventEase.Controllers
                 {
                     var venue = await _context.Venues.FindAsync(eventModel.VenueId);
                     ModelState.AddModelError("EventDate",
-                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Please choose a different date or venue.");
+                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Choose a different date or venue.");
                 }
                 else
                 {
@@ -87,13 +113,36 @@ namespace EventEase.Controllers
         // POST: /events/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EventName,EventDate,Description,VenueId")] Event eventModel)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,EventName,EventDate,Description,VenueId,ImageUrl")] Event eventModel,
+            IFormFile? imageFile)
         {
             if (id != eventModel.Id)
             {
                 TempData["ErrorMessage"] = "Event ID mismatch.";
                 return RedirectToAction(nameof(Index));
             }
+
+            // If a new file was uploaded, replace the existing blob
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadError = ValidateImage(imageFile);
+                if (uploadError != null)
+                {
+                    ModelState.AddModelError("imageFile", uploadError);
+                    await PopulateVenuesDropdown(eventModel.VenueId);
+                    return View(eventModel);
+                }
+
+                // Delete the old blob (safe if null/empty)
+                await _blob.DeleteAsync(eventModel.ImageUrl);
+
+                using var stream = imageFile.OpenReadStream();
+                eventModel.ImageUrl = await _blob.UploadAsync(
+                    stream, imageFile.FileName, imageFile.ContentType);
+            }
+            // else: keep existing ImageUrl (bound from hidden field in the form)
 
             if (ModelState.IsValid)
             {
@@ -107,7 +156,7 @@ namespace EventEase.Controllers
                 {
                     var venue = await _context.Venues.FindAsync(eventModel.VenueId);
                     ModelState.AddModelError("EventDate",
-                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Please choose a different date or venue.");
+                        $"A venue conflict exists: {venue?.VenueName ?? "This venue"} already has an event on {eventModel.EventDate:dd MMM yyyy}. Choose a different date or venue.");
                 }
                 else
                 {
@@ -157,6 +206,9 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Delete the blob image if one exists
+            await _blob.DeleteAsync(eventModel.ImageUrl);
+
             _context.Events.Remove(eventModel);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"{eventModel.EventName} was deleted successfully.";
@@ -173,6 +225,17 @@ namespace EventEase.Controllers
                 .ToListAsync();
 
             ViewBag.VenueId = new SelectList(venues, "Id", "VenueName", selectedVenueId);
+        }
+
+        private static string? ValidateImage(IFormFile file)
+        {
+            if (!AllowedTypes.Contains(file.ContentType.ToLower()))
+                return "Only JPEG, PNG, WebP, or GIF images are allowed.";
+
+            if (file.Length > MaxBytes)
+                return "Image must be smaller than 5 MB.";
+
+            return null;
         }
     }
 }
