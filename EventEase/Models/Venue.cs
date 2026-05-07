@@ -21,9 +21,7 @@ namespace EventEase.Models
         [Display(Name = "Capacity")]
         public int Capacity { get; set; }
 
-        [StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters.")]
-        [Display(Name = "Image URL")]
-        [Url(ErrorMessage = "Please enter a valid URL.")]
+        [StringLength(500)]
         public string? ImageUrl { get; set; }
     }
 }
