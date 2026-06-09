@@ -1,4 +1,4 @@
-namespace EventEase.Models
+namespace EventEase.ViewModels
 {
     public class ErrorViewModel
     {

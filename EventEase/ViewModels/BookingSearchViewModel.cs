@@ -1,6 +1,6 @@
 ﻿using EventEase.Models;
 
-namespace EventEase.Models
+namespace EventEase.ViewModels
 {
     public class BookingSearchViewModel
     {
