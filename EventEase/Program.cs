@@ -20,12 +20,6 @@ builder.Services.AddIdentityServices();
 // Add blob service to container
 builder.Services.AddSingleton<EventEase.Services.IBlobStorageService,
     EventEase.Services.BlobStorageService>();
-builder.Services.AddAzureClients(clientBuilder =>
-{
-    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnection:ConnectionString:blobServiceUri"]!).WithName("StorageConnection:ConnectionString");
-    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnection:ConnectionString:queueServiceUri"]!).WithName("StorageConnection:ConnectionString");
-    clientBuilder.AddTableServiceClient(builder.Configuration["StorageConnection:ConnectionString:tableServiceUri"]!).WithName("StorageConnection:ConnectionString");
-});
 
 var app = builder.Build();
 
