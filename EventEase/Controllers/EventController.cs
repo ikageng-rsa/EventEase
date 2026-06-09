@@ -26,41 +26,38 @@ namespace EventEase.Controllers
             _blob = blob;
         }
 
-        // GET: /events
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var events = await _context.Events
                 .Include(e => e.Venue)
+                .Include(e => e.EventType)
                 .OrderBy(e => e.EventDate)
                 .ToListAsync();
 
             return View(events);
         }
 
-        // GET: /events/create
         [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
-            await PopulateVenuesDropdown();
+            await PopulateDropdowns();
             return View();
         }
 
-        // POST: /events/create
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("EventName,EventDate,Description,VenueId")] Event eventModel,
+             [Bind("EventName,EventDate,Description,VenueId,EventTypeId")] Event eventModel,
             IFormFile? imageFile)
         {
-            // Handle image upload before ModelState check
             if (imageFile != null && imageFile.Length > 0)
             {
                 var uploadError = ValidateImage(imageFile);
                 if (uploadError != null)
                 {
                     ModelState.AddModelError("imageFile", uploadError);
-                    await PopulateVenuesDropdown(eventModel.VenueId);
+                    await PopulateDropdowns(eventModel.VenueId, eventModel.EventTypeId);
                     return View(eventModel);
                 }
 
@@ -71,7 +68,6 @@ namespace EventEase.Controllers
 
             if (ModelState.IsValid)
             {
-                // Block duplicate: same venue, same date
                 var conflict = await _context.Events.AnyAsync(e =>
                     e.VenueId == eventModel.VenueId &&
                     e.EventDate.Date == eventModel.EventDate.Date);
@@ -91,11 +87,10 @@ namespace EventEase.Controllers
                 }
             }
 
-            await PopulateVenuesDropdown(eventModel.VenueId);
+            await PopulateDropdowns(eventModel.VenueId, eventModel.EventTypeId);
             return View(eventModel);
         }
 
-        // GET: /events/edit/5
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -106,16 +101,15 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateVenuesDropdown(eventModel.VenueId);
+            await PopulateDropdowns(eventModel.VenueId, eventModel.EventTypeId);
             return View(eventModel);
         }
 
-        // POST: /events/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,EventName,EventDate,Description,VenueId,ImageUrl")] Event eventModel,
+            [Bind("Id,EventName,EventDate,Description,VenueId,EventTypeId,ImageUrl")] Event eventModel,
             IFormFile? imageFile)
         {
             if (id != eventModel.Id)
@@ -124,29 +118,25 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // If a new file was uploaded, replace the existing blob
             if (imageFile != null && imageFile.Length > 0)
             {
                 var uploadError = ValidateImage(imageFile);
                 if (uploadError != null)
                 {
                     ModelState.AddModelError("imageFile", uploadError);
-                    await PopulateVenuesDropdown(eventModel.VenueId);
+                    await PopulateDropdowns(eventModel.VenueId, eventModel.EventTypeId);
                     return View(eventModel);
                 }
 
-                // Delete the old blob (safe if null/empty)
                 await _blob.DeleteAsync(eventModel.ImageUrl);
 
                 using var stream = imageFile.OpenReadStream();
                 eventModel.ImageUrl = await _blob.UploadAsync(
                     stream, imageFile.FileName, imageFile.ContentType);
             }
-            // else: keep existing ImageUrl (bound from hidden field in the form)
 
             if (ModelState.IsValid)
             {
-                // Block duplicate: same venue, same date, excluding this event
                 var conflict = await _context.Events.AnyAsync(e =>
                     e.VenueId == eventModel.VenueId &&
                     e.EventDate.Date == eventModel.EventDate.Date &&
@@ -179,7 +169,7 @@ namespace EventEase.Controllers
                 }
             }
 
-            await PopulateVenuesDropdown(eventModel.VenueId);
+            await PopulateDropdowns(eventModel.VenueId, eventModel.EventTypeId);
             return View(eventModel);
         }
 
@@ -198,7 +188,6 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Block deletion if any bookings are linked to this event
             var hasBookings = await _context.Bookings.AnyAsync(b => b.EventId == id);
             if (hasBookings)
             {
@@ -206,7 +195,6 @@ namespace EventEase.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Delete the blob image if one exists
             await _blob.DeleteAsync(eventModel.ImageUrl);
 
             _context.Events.Remove(eventModel);
@@ -218,13 +206,20 @@ namespace EventEase.Controllers
         private bool EventExists(int id) =>
             _context.Events.Any(e => e.Id == id);
 
-        private async Task PopulateVenuesDropdown(int? selectedVenueId = null)
+        private async Task PopulateDropdowns(
+            int? selectedVenueId = null,
+            int? selectedEventTypeId = null)
         {
             var venues = await _context.Venues
                 .OrderBy(v => v.VenueName)
                 .ToListAsync();
 
+            var eventTypes = await _context.EventTypes
+                .OrderBy(et => et.Name)
+                .ToListAsync();
+
             ViewBag.VenueId = new SelectList(venues, "Id", "VenueName", selectedVenueId);
+            ViewBag.EventTypeId = new SelectList(eventTypes, "Id", "Name", selectedEventTypeId);
         }
 
         private static string? ValidateImage(IFormFile file)

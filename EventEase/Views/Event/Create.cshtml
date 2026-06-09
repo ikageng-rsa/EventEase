@@ -122,6 +122,26 @@
                                     <span asp-validation-for="VenueId" class="text-danger small"></span>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label asp-for="EventTypeId" class="form-label fw-medium">
+                                        Event Type <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                                <line x1="7" y1="7" x2="7.01" y2="7" />
+                                            </svg>
+                                        </span>
+                                        <select asp-for="EventTypeId" asp-items="ViewBag.EventTypeId"
+                                                class="form-select border-start-0">
+                                            <option value="">— Select an event type —</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="EventTypeId" class="text-danger small"></span>
+                                </div>
+
                                 <div class="mb-4">
                                     <label asp-for="Description" class="form-label fw-medium">
                                         Description <span class="text-danger">*</span>

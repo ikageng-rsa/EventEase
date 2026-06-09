@@ -91,6 +91,7 @@
                                 <th class="text-muted fw-semibold" style="width: 60px;">#</th>
                                 <th class="text-muted fw-semibold">Event Name</th>
                                 <th class="text-muted fw-semibold">Venue</th>
+                                <th class="text-muted fw-semibold">Type</th>
                                 <th class="text-muted fw-semibold">Date</th>
                                 <th class="text-muted fw-semibold">Description</th>
                                 <th class="text-muted fw-semibold text-end" style="width: 150px;">Actions</th>
@@ -100,7 +101,7 @@
                             @if (!Model.Any())
                             {
                                 <tr>
-                                    <td colspan="6" class="text-center py-5">
+                                    <td colspan="7" class="text-center py-5">
                                         <div class="empty">
                                             <div class="empty-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
@@ -141,6 +142,11 @@
                                         <td>
                                             <span class="badge bg-azure-lt text-azure">
                                                 @(ev.Venue?.VenueName ?? "—")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-azure-lt text-azure">
+                                                @(ev.EventType?.Name ?? "—")
                                             </span>
                                         </td>
                                         <td>
