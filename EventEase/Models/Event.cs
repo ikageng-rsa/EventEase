@@ -34,5 +34,12 @@ namespace EventEase.Models
         // Navigation property
         [ForeignKey("VenueId")]
         public Venue? Venue { get; set; }
+
+        [Required(ErrorMessage = "Please select an event type.")]
+        [Display(Name = "Event Type")]
+        public int EventTypeId { get; set; }
+
+        [ForeignKey("EventTypeId")]
+        public EventType? EventType { get; set; }
     }
 }

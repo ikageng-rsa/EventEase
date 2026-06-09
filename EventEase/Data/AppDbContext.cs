@@ -46,6 +46,12 @@ namespace EventEase.Data
                 .HasIndex(p => p.UserId)
                 .IsUnique();
 
+            builder.Entity<Event>()
+                .HasOne(e => e.EventType)
+                .WithMany(et => et.Events)
+                .HasForeignKey(e => e.EventTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Seed EventTypes
             builder.Entity<EventType>().HasData(
                 new EventType { Id = 1, Name = "Conference", Description = "Professional conferences and summits" },
