@@ -46,6 +46,7 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CustomerId,EventId")] Booking booking)
         {
+
             if (ModelState.IsValid)
             {
                 // Load the event to enforce venue and date server-side
@@ -53,42 +54,51 @@ namespace EventEase.Controllers
                     .Include(e => e.Venue)
                     .FirstOrDefaultAsync(e => e.Id == booking.EventId);
 
-                if (selectedEvent == null)
+                if (!selectedEvent.Venue!.IsAvailable)
                 {
-                    ModelState.AddModelError("EventId", "The selected event no longer exists.");
+                    ModelState.AddModelError("EventId",
+                        $"{selectedEvent.Venue.VenueName} is currently unavailable for booking.");
                 }
                 else
                 {
-                    // Prevent same customer booking the same event twice
-                    var alreadyBooked = await _context.Bookings.AnyAsync(b =>
-                        b.CustomerId == booking.CustomerId &&
-                        b.EventId == selectedEvent.Id);
 
-                    if (alreadyBooked)
+                    if (selectedEvent == null)
                     {
-                        ModelState.AddModelError("EventId",
-                            "This customer already has a booking for this event.");
+                        ModelState.AddModelError("EventId", "The selected event no longer exists.");
                     }
                     else
                     {
-                        // Capacity check — count existing bookings for this event
-                        var existingBookings = await _context.Bookings
-                            .CountAsync(b => b.EventId == selectedEvent.Id);
+                        // Prevent same customer booking the same event twice
+                        var alreadyBooked = await _context.Bookings.AnyAsync(b =>
+                            b.CustomerId == booking.CustomerId &&
+                            b.EventId == selectedEvent.Id);
 
-                        if (existingBookings >= selectedEvent.Venue!.Capacity)
+                        if (alreadyBooked)
                         {
                             ModelState.AddModelError("EventId",
-                                $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                                "This customer already has a booking for this event.");
                         }
                         else
                         {
-                            booking.VenueId = selectedEvent.VenueId;
-                            booking.BookingDate = selectedEvent.EventDate;
+                            // Capacity check — count existing bookings for this event
+                            var existingBookings = await _context.Bookings
+                                .CountAsync(b => b.EventId == selectedEvent.Id);
 
-                            _context.Add(booking);
-                            await _context.SaveChangesAsync();
-                            TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully.";
-                            return RedirectToAction(nameof(Index));
+                            if (existingBookings >= selectedEvent.Venue!.Capacity)
+                            {
+                                ModelState.AddModelError("EventId",
+                                    $"This event is fully booked. {selectedEvent.Venue.VenueName} has a capacity of {selectedEvent.Venue.Capacity} and all spots are taken.");
+                            }
+                            else
+                            {
+                                booking.VenueId = selectedEvent.VenueId;
+                                booking.BookingDate = selectedEvent.EventDate;
+
+                                _context.Add(booking);
+                                await _context.SaveChangesAsync();
+                                TempData["SuccessMessage"] = $"Booking #{booking.Id.ToString("D4")} was created successfully.";
+                                return RedirectToAction(nameof(Index));
+                            }
                         }
                     }
                 }

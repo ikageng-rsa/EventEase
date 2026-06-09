@@ -45,7 +45,7 @@ namespace EventEase.Controllers
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("VenueName,Location,Capacity")] Venue venue,
+            [Bind("VenueName,Location,Capacity, IsAvailable")] Venue venue,
             IFormFile? imageFile)
         {
             // Handle image upload before model validation affects ImageUrl
@@ -91,7 +91,7 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,VenueName,Location,Capacity,ImageUrl")] Venue venue,
+            [Bind("Id,VenueName,Location,Capacity,ImageUrl, IsAvailable")] Venue venue,
             IFormFile? imageFile)
         {
             if (id != venue.Id)

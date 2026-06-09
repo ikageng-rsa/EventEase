@@ -23,5 +23,8 @@ namespace EventEase.Models
 
         [StringLength(500)]
         public string? ImageUrl { get; set; }
+
+        [Display(Name = "Available for Booking")]
+        public bool IsAvailable { get; set; } = true;
     }
 }

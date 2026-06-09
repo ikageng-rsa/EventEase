@@ -138,6 +138,18 @@
                                         </div>
                                     </div>
 
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IsAvailable" class="form-check-input" type="checkbox" role="switch" />
+                                        <label asp-for="IsAvailable" class="form-check-label fw-medium">
+                                            Available for Booking
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        Uncheck to mark this venue as unavailable — it will be excluded from new bookings.
+                                    </div>
+                                </div>
+
                                     <div class="d-flex gap-2 pt-2 border-top">
                                         <a asp-controller="Venue" asp-action="Index" class="btn btn-outline-secondary flex-fill">
                                             Cancel
