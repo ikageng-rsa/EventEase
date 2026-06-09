@@ -224,29 +224,69 @@ namespace EventEase.Controllers
 
         // GET: /bookings/search
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string? q)
+        public async Task<IActionResult> Search(
+            string? q,
+            int? eventTypeId,
+            DateTime? dateFrom,
+            DateTime? dateTo,
+            bool availableVenuesOnly = false)
         {
-            var viewModel = new BookingSearchViewModel
+            var eventTypes = await _context.EventTypes
+                .OrderBy(et => et.Name)
+                .ToListAsync();
+
+            var viewModel = new BookingFilterViewModel
             {
                 SearchTerm = q,
-                SearchPerformed = q != null
+                EventTypeId = eventTypeId,
+                DateFrom = dateFrom,
+                DateTo = dateTo,
+                AvailableVenuesOnly = availableVenuesOnly,
+                EventTypes = eventTypes,
+                SearchPerformed = q != null ||
+                    eventTypeId.HasValue ||
+                    dateFrom.HasValue ||
+                    dateTo.HasValue ||
+                    availableVenuesOnly
             };
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if (viewModel.SearchPerformed)
             {
-                var term = q.Trim();
-
-                // Try to parse as a booking ID (numeric search)
-                bool isNumeric = int.TryParse(term, out int bookingId);
-
-                viewModel.Results = await _context.Bookings
+                var query = _context.Bookings
                     .Include(b => b.Customer)
+                    .Include(b => b.Event)
+                        .ThenInclude(e => e!.EventType)
                     .Include(b => b.Event)
                         .ThenInclude(e => e!.Venue)
                     .Include(b => b.Venue)
-                    .Where(b =>
-                        (isNumeric && b.Id == bookingId) ||
-                        b.Event!.EventName.Contains(term))
+                    .AsQueryable();
+
+                // Filter by Booking ID or Event Name
+                if (!string.IsNullOrWhiteSpace(q))
+                {
+                    var term = q.Trim();
+                    bool isNumeric = int.TryParse(term, out int bookingId);
+                    query = isNumeric
+                        ? query.Where(b => b.Id == bookingId)
+                        : query.Where(b => b.Event!.EventName.Contains(term));
+                }
+
+                // Filter by EventType
+                if (eventTypeId.HasValue)
+                    query = query.Where(b => b.Event!.EventTypeId == eventTypeId.Value);
+
+                // Filter by date range
+                if (dateFrom.HasValue)
+                    query = query.Where(b => b.Event!.EventDate.Date >= dateFrom.Value.Date);
+
+                if (dateTo.HasValue)
+                    query = query.Where(b => b.Event!.EventDate.Date <= dateTo.Value.Date);
+
+                // Filter by venue availability
+                if (availableVenuesOnly)
+                    query = query.Where(b => b.Venue!.IsAvailable);
+
+                viewModel.Results = await query
                     .OrderByDescending(b => b.BookingDate)
                     .ToListAsync();
             }
