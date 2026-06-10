@@ -20,8 +20,20 @@ builder.Services.AddIdentityServices();
 // Add blob service to container
 builder.Services.AddSingleton<EventEase.Services.IBlobStorageService,
     EventEase.Services.BlobStorageService>();
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["AzureStorage:ConnectionString:blobServiceUri"]!).WithName("AzureStorage:ConnectionString");
+    clientBuilder.AddQueueServiceClient(builder.Configuration["AzureStorage:ConnectionString:queueServiceUri"]!).WithName("AzureStorage:ConnectionString");
+    clientBuilder.AddTableServiceClient(builder.Configuration["AzureStorage:ConnectionString:tableServiceUri"]!).WithName("AzureStorage:ConnectionString");
+});
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 // Seed the initial admin user (Extensions/DbSeederExtensions.cs)
 await app.SeedAdminUserAsync();
