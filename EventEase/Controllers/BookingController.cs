@@ -243,11 +243,11 @@ namespace EventEase.Controllers
                 DateTo = dateTo,
                 AvailableVenuesOnly = availableVenuesOnly,
                 EventTypes = eventTypes,
-                SearchPerformed = q != null ||
-                    eventTypeId.HasValue ||
-                    dateFrom.HasValue ||
-                    dateTo.HasValue ||
-                    availableVenuesOnly
+                SearchPerformed = Request.Query.ContainsKey("q") ||
+                    Request.Query.ContainsKey("eventTypeId") ||
+                    Request.Query.ContainsKey("dateFrom") ||
+                    Request.Query.ContainsKey("dateTo") ||
+                    Request.Query.ContainsKey("availableVenuesOnly")
             };
 
             if (viewModel.SearchPerformed)
@@ -261,7 +261,7 @@ namespace EventEase.Controllers
                     .Include(b => b.Venue)
                     .AsQueryable();
 
-                // Filter by Booking ID or Event Name
+                // Only apply each filter if the user provided a value
                 if (!string.IsNullOrWhiteSpace(q))
                 {
                     var term = q.Trim();
@@ -271,18 +271,15 @@ namespace EventEase.Controllers
                         : query.Where(b => b.Event!.EventName.Contains(term));
                 }
 
-                // Filter by EventType
                 if (eventTypeId.HasValue)
                     query = query.Where(b => b.Event!.EventTypeId == eventTypeId.Value);
 
-                // Filter by date range
                 if (dateFrom.HasValue)
                     query = query.Where(b => b.Event!.EventDate.Date >= dateFrom.Value.Date);
 
                 if (dateTo.HasValue)
                     query = query.Where(b => b.Event!.EventDate.Date <= dateTo.Value.Date);
 
-                // Filter by venue availability
                 if (availableVenuesOnly)
                     query = query.Where(b => b.Venue!.IsAvailable);
 

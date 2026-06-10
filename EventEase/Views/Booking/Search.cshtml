@@ -1,4 +1,4 @@
-﻿@model EventEase.ViewModels.BookingSearchViewModel
+﻿@model EventEase.ViewModels.BookingFilterViewModel
 
 @{
     ViewData["Title"] = "Booking Search";
@@ -13,14 +13,14 @@
                 <div class="col">
                     <div class="page-pretitle text-azure">
                         EventEase &rsaquo;
-                        <a href="@Url.Action("Index", "Booking")" class="text-azure text-decoration-none">Bookings</a>
+                        <a asp-controller="Booking" asp-action="Index" class="text-azure text-decoration-none">Bookings</a>
                         &rsaquo; Search
                     </div>
                     <h2 class="page-title fw-bold">Booking Search</h2>
                 </div>
                 <div class="col-auto ms-auto">
-                    <a href="@Url.Action("Create", "Booking")"
-                       class="btn btn-azure d-flex align-items-center gap-2">
+                    <a asp-controller="Booking" asp-action="Create"
+                           class="btn btn-azure d-flex align-items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19" />
@@ -36,46 +36,105 @@
     <div class="page-body">
         <div class="container-xl">
 
-            <!-- Search bar -->
             <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-sm bg-azure-lt text-azure rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                            </svg>
+                        </span>
+                        <h3 class="card-title mb-0 fw-semibold">Filter Bookings</h3>
+                    </div>
+                </div>
                 <div class="card-body p-4">
-                    <form action="@Url.Action("Search", "Booking")" method="get" class="row g-3 align-items-end">
-                        <div class="col">
-                            <label class="form-label fw-medium">Search Bookings</label>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-text bg-azure-lt border-end-0 text-azure">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="11" cy="11" r="8" />
-                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                                    </svg>
-                                </span>
-                                <input type="text" name="q" value="@Model.SearchTerm"
-                                       class="form-control border-start-0"
-                                       placeholder="Enter a Booking ID (e.g. 3) or Event Name (e.g. Annual Conference)..."
-                                       autofocus />
-                                @if (!string.IsNullOrEmpty(Model.SearchTerm))
-                                {
-                                    <a href="@Url.Action("Search", "Booking")"
-                                       class="btn btn-outline-secondary" title="Clear search">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                            <line x1="6" y1="6" x2="18" y2="18" />
+                    <form asp-controller="Booking" asp-action="Search" method="get">
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Booking ID or Event Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-azure-lt border-end-0 text-azure">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8" />
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                         </svg>
-                                    </a>
-                                }
-                                <button type="submit" class="btn btn-azure px-4">Search</button>
+                                    </span>
+                                    <input type="text" name="q" value="@Model.SearchTerm"
+                                           class="form-control border-start-0"
+                                           placeholder="e.g. 3 or Annual Conference..." />
+                                </div>
                             </div>
-                            <div class="form-text">Search by Booking ID (numeric) or partial Event Name.</div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Event Type</label>
+                                <select name="eventTypeId" class="form-select">
+                                    <option value="">— All types —</option>
+                                    @foreach (var et in Model.EventTypes)
+                                    {
+                                        <option value="@et.Id"
+                                                selected="@(Model.EventTypeId == et.Id ? "selected" : null)">
+                                            @et.Name
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium">Event Date From</label>
+                                <input type="date" name="dateFrom" class="form-control"
+                                       value="@(Model.DateFrom?.ToString("yyyy-MM-dd") ?? "")" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium">Event Date To</label>
+                                <input type="date" name="dateTo" class="form-control"
+                                       value="@(Model.DateTo?.ToString("yyyy-MM-dd") ?? "")" />
+                            </div>
+
+                            <div class="col-md-4 d-flex align-items-end pb-1">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" name="availableVenuesOnly" value="true"
+                                           class="form-check-input" role="switch"
+                                           id="availableVenuesOnly"
+                                    @(Model.AvailableVenuesOnly ? "checked" : "") />
+                                    <label class="form-check-label fw-medium" for="availableVenuesOnly">
+                                        Available venues only
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
+
+                        <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-azure d-flex align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                Search
+                            </button>
+                            @if (Model.SearchPerformed)
+                            {
+                                <a asp-controller="Booking" asp-action="Search"
+                                       class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                    Clear
+                                </a>
+                            }
+                        </div>
+
                     </form>
                 </div>
             </div>
 
-            <!-- State: not yet searched -->
             @if (!Model.SearchPerformed)
             {
                 <div class="card shadow-sm border-0">
@@ -88,9 +147,9 @@
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                         </div>
-                        <h3 class="fw-semibold mb-1">Search for a booking</h3>
+                        <h3 class="fw-semibold mb-1">Search or filter bookings</h3>
                         <p class="text-muted mb-0">
-                            Enter a Booking ID or Event Name above to find consolidated booking details.
+                            Use the filters above to find bookings by ID, event name, type, date range or venue availability.
                         </p>
                     </div>
                 </div>
@@ -108,10 +167,7 @@
                             </svg>
                         </div>
                         <h3 class="fw-semibold mb-1">No bookings found</h3>
-                        <p class="text-muted mb-0">
-                            No results for <strong>"@Model.SearchTerm"</strong>.
-                            Try a different Booking ID or Event Name.
-                        </p>
+                        <p class="text-muted mb-0">Try adjusting your filters.</p>
                     </div>
                 </div>
             }
@@ -119,8 +175,8 @@
             {
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-muted">
-                        <strong>@Model.ResultCount</strong> result@(Model.ResultCount == 1 ? "" : "s")
-                        for <strong>"@Model.SearchTerm"</strong>
+                        <strong>@Model.ResultCount</strong>
+                        result@(Model.ResultCount == 1 ? "" : "s") found
                     </span>
                 </div>
 
@@ -128,36 +184,35 @@
                     @foreach (var booking in Model.Results)
                     {
                         var isUpcoming = booking.Event?.EventDate.Date >= today;
-                        var daysUntil = booking.Event != null ? (booking.Event.EventDate.Date - today).Days : 0;
+                        var daysUntil = booking.Event != null
+                            ? (booking.Event.EventDate.Date - today).Days : 0;
 
                         string statusColor = isUpcoming ? "success" : "secondary";
                         string statusLabel = isUpcoming ? "Upcoming" : "Completed";
 
                         <div class="col-12">
-                            <div class="card shadow-sm border-0 h-100">
+                            <div class="card shadow-sm border-0">
                                 <div class="card-body p-0">
                                     <div class="row g-0">
 
-                                        <!-- Left accent bar -->
                                         <div class="col-auto">
                                             <div class="h-100 rounded-start"
-                                                 style="width:5px; background: @(isUpcoming ? "#2fb344" : "#adb5bd");"></div>
+                                                 style="width:5px;background:@(isUpcoming ? "#2fb344" : "#adb5bd");">
+                                            </div>
                                         </div>
 
-                                        <!-- Main content -->
                                         <div class="col p-4">
                                             <div class="row g-3">
 
-                                                <!-- Header -->
                                                 <div class="col-12 d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center gap-2">
-                                                        <span class="badge bg-azure-lt text-azure fw-semibold">
+                                                        <span class="badge bg-azure-lt text-azure fw-semibold"
+                                                              style="font-size:0.9rem;">
                                                             #@booking.Id.ToString("D4")
                                                         </span>
                                                         <span class="badge bg-@(statusColor)-lt text-@statusColor">
                                                             @statusLabel
                                                         </span>
-
                                                         @if (isUpcoming && daysUntil == 0)
                                                         {
                                                             <span class="badge bg-danger-lt text-danger">Today</span>
@@ -166,94 +221,88 @@
                                                         {
                                                             <span class="badge bg-warning-lt text-warning">Tomorrow</span>
                                                         }
-                                                </div>
-
-                                                <a asp-action="Details"
-                                                   asp-controller="Booking"
-                                                   asp-route-id="@booking.Id"
-                                                   class="btn btn-sm btn-outline-azure d-flex align-items-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                                        <circle cx="12" cy="12" r="3" />
-                                                    </svg>
-                                                    Full Details
-                                                </a>
-                                            </div>
-
-                                            <!-- Customer -->
-                                            <div class="col-md-4">
-                                                <div class="d-flex align-items-center gap-2 mb-1">
-                                                    <span class="avatar avatar-xs rounded-circle bg-azure-lt text-azure fw-bold"
-                                                          style="width:1.5rem;height:1.5rem;font-size:0.65rem;">
-                                                        @(booking.Customer?.FullName?[0].ToString().ToUpper() ?? "?")
-                                                    </span>
-                                                    <span class="text-muted fw-semibold"
-                                                          style="font-size:0.7rem;text-transform:uppercase;">
-                                                        Customer
-                                                    </span>
-                                                </div>
-                                                <div class="fw-semibold">@(booking.Customer?.FullName ?? "—")</div>
-                                                <div class="text-muted small">@(booking.Customer?.Email ?? "")</div>
-                                                <div class="text-muted small">@(booking.Customer?.Phone ?? "")</div>
-                                            </div>
-
-                                            <!-- Event -->
-                                            <div class="col-md-4">
-                                                <div class="text-muted fw-semibold mb-1"
-                                                     style="font-size:0.7rem;text-transform:uppercase;">
-                                                    Event
-                                                </div>
-                                                <div class="fw-semibold">@(booking.Event?.EventName ?? "—")</div>
-                                                <div class="text-muted small">
-                                                    @(booking.Event?.EventDate.ToString("dd MMM yyyy") ?? "")
-                                                </div>
-                                                <div class="text-muted small text-truncate"
-                                                     style="max-width:220px;"
-                                                     title="@booking.Event?.Description">
-                                                    @(booking.Event?.Description?.Length > 60
-                                                                                                    ? booking.Event.Description[..60] + "…"
-                                                                                                    : booking.Event?.Description ?? "")
-                                            </div>
-                                        </div>
-
-                                                <!-- Venue -->
-                                                <div class="col-md-4">
-                                                    <div class="text-muted fw-semibold mb-1"
-                                                         style="font-size:0.7rem;text-transform:uppercase;">
-                                                        Venue
                                                     </div>
-                                                    <div class="fw-semibold">@(booking.Venue?.VenueName ?? "—")</div>
-                                                    <div class="text-muted small">
-                                                        @(booking.Venue?.Location ?? "")
-                                                    </div>
-                                                    <div class="text-muted small">
-                                                        Capacity: @(booking.Venue?.Capacity.ToString("N0") ?? "—")
-                                                    </div>
-                                                </div>
-
-                                                <!-- Footer -->
-                                                <div class="col-12 pt-2 border-top d-flex justify-content-between">
-                                                    <span class="text-muted small">
-                                                        Booked on @booking.BookingDate.ToString("dd MMM yyyy")
-                                                    </span>
-                                                    <a asp-action="Edit"
-                                                       asp-controller="Booking"
-                                                       asp-route-id="@booking.Id"
-                                                       class="btn btn-sm btn-outline-azure">
-                                                        Edit
+                                                    <a asp-controller="Booking" asp-action="Details"
+                                                           asp-route-id="@booking.Id"
+                                                           class="btn btn-sm btn-outline-azure d-flex align-items-center gap-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                            <circle cx="12" cy="12" r="3" />
+                                                        </svg>
+                                                        Full Details
                                                     </a>
                                                 </div>
 
+                                                <div class="col-md-4">
+                                                    <div class="text-muted fw-semibold mb-1"
+                                                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Customer
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="avatar avatar-xs rounded-circle bg-azure-lt text-azure fw-bold"
+                                                              style="width:1.5rem;height:1.5rem;font-size:0.65rem;">
+                                                            @(booking.Customer?.FullName?[0].ToString().ToUpper() ?? "?")
+                                                        </span>
+                                                        <span class="fw-semibold">@(booking.Customer?.FullName ?? "—")</span>
+                                                    </div>
+                                                    <div class="text-muted small">@(booking.Customer?.Email ?? "")</div>
+                                                    <div class="text-muted small">@(booking.Customer?.Phone ?? "")</div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="text-muted fw-semibold mb-1"
+                                                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Event
+                                                    </div>
+                                                    <div class="fw-semibold">@(booking.Event?.EventName ?? "—")</div>
+                                                    <div class="text-muted small">
+                                                        @(booking.Event?.EventDate.ToString("dd MMM yyyy") ?? "")
+                                                    </div>
+                                                    @if (booking.Event?.EventType != null)
+                                                    {
+                                                        <span class="badge bg-azure-lt text-azure mt-1">
+                                                            @booking.Event.EventType.Name
+                                                        </span>
+                                                    }
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="text-muted fw-semibold mb-1"
+                                                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Venue
+                                                    </div>
+                                                    <div class="fw-semibold">@(booking.Venue?.VenueName ?? "—")</div>
+                                                    <div class="text-muted small">@(booking.Venue?.Location ?? "")</div>
+                                                    <div class="mt-1">
+                                                        @if (booking.Venue?.IsAvailable == true)
+                                                        {
+                                                            <span class="badge bg-success-lt text-success">Available</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger-lt text-danger">Unavailable</span>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 pt-2 border-top d-flex align-items-center justify-content-between">
+                                                    <span class="text-muted small">
+                                                        Booked on @booking.BookingDate.ToString("dd MMM yyyy")
+                                                    </span>
+                                                    <a asp-controller="Booking" asp-action="Edit"
+                                                       asp-route-id="@booking.Id"
+                                                       class="btn btn-sm btn-outline-azure">Edit</a>
+                                                </div>
+
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-                                }
+                    }
                 </div>
             }
 
